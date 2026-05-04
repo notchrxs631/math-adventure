@@ -6079,66 +6079,6 @@ function showMemoryTrick(topic){
     +'<div style="font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.7;">'+trick+'</div>'
    +'</div>';
 }
-
-// ══ ROBOT COACH ═══════════════════════════════════════════════
-var COACH_HINTS={
-  multiplication:["🤔 Think of it as repeated addition!","💡 Try skip counting!","🧠 Break it in half, then double!","⭐ What's close to a round number?"],
-  addition:["🤔 Start with the bigger number and count up!","💡 Can you make a 10 first?","🧠 Round one number, then adjust!","⭐ Break one number into parts!"],
-  subtraction:["🤔 What do I ADD to the smaller number to reach the bigger one?","💡 Count up from the bottom!","🧠 Round to the nearest 10 first!","⭐ Use a number line in your head!"],
-  division:["🤔 Division is multiplication backwards!","💡 How many groups fit?","🧠 Skip count by the divisor!","⭐ What times the divisor gets close?"],
-  default:["🤔 Read it carefully — what operation do you see?","💡 Break it into smaller steps!","🧠 Try working backwards!","⭐ Check your answer when done!"]
-};
-var COACH_STATE={hintIndex:0,topic:'',question:'',answer:null};
-
-function coachNewQuestion(q,ans,topic){
-  COACH_STATE.hintIndex=0;COACH_STATE.topic=topic||'default';COACH_STATE.question=String(q);COACH_STATE.answer=ans;
-  var greetings=["Ready? Take your time! 😊","You got this! Think it through 🧠","Let's solve this together! 💪","Read carefully first! 🤔","What operation do you see? 👀"];
-  setRobotBubble(greetings[Math.floor(Math.random()*greetings.length)],false);
-}
-
-function coachGiveHint(){
-  var q=COACH_STATE.question;
-  var pool=COACH_HINTS.default;
-  if(q.includes('×'))pool=COACH_HINTS.multiplication;
-  else if(q.includes('+'))pool=COACH_HINTS.addition;
-  else if(q.includes('−')||q.includes('-'))pool=COACH_HINTS.subtraction;
-  else if(q.includes('÷'))pool=COACH_HINTS.division;
-  var hint=pool[Math.min(COACH_STATE.hintIndex,pool.length-1)];
-  COACH_STATE.hintIndex++;
-  setRobotBubble(hint,true);
-}
-
-function coachWrongAnswer(){
-  var msgs=["Not quite! 🤔 Try a different approach...","Close! Let me give you a clue 💡","Don't give up! Think about it differently 🧠","Almost! Here's a hint:"];
-  setRobotBubble(msgs[Math.floor(Math.random()*msgs.length)],true);
-  setTimeout(coachGiveHint,1500);
-}
-
-function coachCorrectAnswer(){
-  var msgs=["🎉 Excellent! You got it!","⭐ Amazing work!","🔥 Perfect! You're on fire!","💪 Nailed it!","🌟 Brilliant!"];
-  setRobotBubble(msgs[Math.floor(Math.random()*msgs.length)],false);
-}
-
-function setRobotBubble(text,isHint){
-  var bubble=document.getElementById('robot-bubble');if(!bubble)return;
-  bubble.textContent=text;
-  bubble.style.background=isHint?'linear-gradient(135deg,rgba(124,58,237,.2),rgba(91,33,182,.2))':'rgba(255,255,255,.1)';
-  bubble.style.transform='scale(1.03)';
-  setTimeout(function(){bubble.style.transform='scale(1)';},200);
-}
-
-(function addCoachButton(){
-  setTimeout(function(){
-    var qCard=document.querySelector('.q-card');if(!qCard)return;
-    if(document.getElementById('coach-hint-btn'))return;
-    var btn=document.createElement('button');
-    btn.id='coach-hint-btn';
-    btn.style.cssText='width:100%;padding:8px;margin-top:.4rem;background:rgba(124,58,237,.15);border:1.5px solid rgba(124,58,237,.4);border-radius:50px;font-family:Fredoka One,cursive;font-size:.78rem;color:#A78BFA;cursor:pointer;';
-    btn.textContent='🧠 Ask Coach for a Hint';
-    btn.onclick=function(){coachGiveHint();};
-    qCard.appendChild(btn);
-  },500);
-})();
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">

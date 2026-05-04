@@ -852,7 +852,17 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
 .time-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F0F0F0;}
 .time-topic{font-size:12px;font-weight:700;color:#333;flex:1;}
 .time-val{font-size:11px;color:#888;}
-
+.tier-topics {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  gap: 5px !important;
+  padding: 6px 14px 10px !important;
+  background: rgba(0,0,0,.18) !important;
+}
+.tier-topics::-webkit-scrollbar { display: none !important; }
+.tier-pill { flex-shrink: 0 !important; white-space: nowrap !important; }
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -1468,8 +1478,8 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
       <div class="mg-card mg-card-memory" onclick="startMemory()">
         <div class="mg-banner"><div class="mg-icon">🧠</div><div class="mg-info"><div class="mg-name">Math Memory</div><div class="mg-desc">Match equations with their answers in this flip-card memory challenge!</div></div><div class="mg-badge">🃏 Memory</div></div>
       </div>
-    </div>
-    <div style="font-family:Fredoka One,cursive;font-size:.85rem;color:rgba(255,255,255,.7);margin:.75rem 0 .4rem;text-align:center;">👹 BOSS CHALLENGES</div><div class="mg-cards"><div class="mg-card" onclick="startBossGauntlet()" style="border-color:#E53935;"><div class="mg-banner" style="background:linear-gradient(135deg,#7f0000,#E53935)!important;"><div class="mg-icon">👹</div><div class="mg-info"><div class="mg-name">Math Gauntlet</div><div class="mg-desc">Face the boss! Chip its HP before it attacks!</div></div><div class="mg-badge">⚔️</div></div></div><div class="mg-card" onclick="startSurvivalMode()" style="border-color:#00C853;"><div class="mg-banner" style="background:linear-gradient(135deg,#003300,#00C853)!important;"><div class="mg-icon">🧟</div><div class="mg-info"><div class="mg-name">Survival Mode</div><div class="mg-desc">Math zombies march at you! Type answers to zap them!</div></div><div class="mg-badge">🌊</div></div></div><div class="mg-card" onclick="startSpeedBlitz()" style="border-color:#7C3AED;"><div class="mg-banner" style="background:linear-gradient(135deg,#000033,#7C3AED)!important;"><div class="mg-icon">⚡</div><div class="mg-info"><div class="mg-name">Speed Blitz</div><div class="mg-desc">20q shrinking timer. Build combos. Max score!</div></div><div class="mg-badge">💨</div></div></div></div>
+    </div>onclick="startBoss
+    <div style="font-family:Fredoka One,cursive;font-size:.85rem;color:rgba(255,255,255,.7);margin:.75rem 0 .4rem;text-align:center;">👹 BOSS CHALLENGES</div><div class="mg-cards"><div class="mg-card" sGauntlet()" style="border-color:#E53935;"><div class="mg-banner" style="background:linear-gradient(135deg,#7f0000,#E53935)!important;"><div class="mg-icon">👹</div><div class="mg-info"><div class="mg-name">Math Gauntlet</div><div class="mg-desc">Face the boss! Chip its HP before it attacks!</div></div><div class="mg-badge">⚔️</div></div></div><div class="mg-card" onclick="startSurvivalMode()" style="border-color:#00C853;"><div class="mg-banner" style="background:linear-gradient(135deg,#003300,#00C853)!important;"><div class="mg-icon">🧟</div><div class="mg-info"><div class="mg-name">Survival Mode</div><div class="mg-desc">Math zombies march at you! Type answers to zap them!</div></div><div class="mg-badge">🌊</div></div></div><div class="mg-card" onclick="startSpeedBlitz()" style="border-color:#7C3AED;"><div class="mg-banner" style="background:linear-gradient(135deg,#000033,#7C3AED)!important;"><div class="mg-icon">⚡</div><div class="mg-info"><div class="mg-name">Speed Blitz</div><div class="mg-desc">20q shrinking timer. Build combos. Max score!</div></div><div class="mg-badge">💨</div></div></div></div>
 <div class="mg-highscores" id="mg-hs"></div>
   </div>
 </div>
@@ -5293,7 +5303,377 @@ function exportReport(){
   if(navigator.clipboard){ navigator.clipboard.writeText(report).then(function(){ alert('✅ Report copied to clipboard!\nPaste into an email to your teacher.'); }); }
   else { alert(report); }
 }
+// ══ SURVIVAL MODE ══════════════════════════════════════
+var SV={lives:3,score:0,wave:1,mobs:[],spawnT:null,moveT:null,running:false,kills:0};
 
+function startSurvivalMode(){
+  SV.lives=3;SV.score=0;SV.wave=1;SV.mobs=[];SV.running=true;SV.kills=0;
+  var el=document.getElementById('s-boss-survival');
+  if(el)el.style.display='flex';
+  var arena=document.getElementById('sv-arena');
+  if(arena)arena.innerHTML='';
+  document.getElementById('sv-wave').textContent='Wave 1';
+  document.getElementById('sv-score').textContent='0';
+  document.getElementById('sv-lives').textContent='❤️❤️❤️';
+  var inp=document.getElementById('sv-inp');
+  if(inp){inp.value='';setTimeout(function(){inp.focus();},400);}
+  if(SV.moveT)clearInterval(SV.moveT);
+  SV.moveT=setInterval(svCheck,200);
+  svSpawn();
+}
+
+function svSpawn(){
+  if(!SV.running)return;
+  var emojis=['🧟','👾','💀','🕷️','👹','😈'];
+  var questions=[
+    function(){var a=Math.ceil(Math.random()*12),b=Math.ceil(Math.random()*12);return{q:a+'×'+b,ans:a*b};},
+    function(){var a=10+Math.floor(Math.random()*90),b=10+Math.floor(Math.random()*90);return{q:a+'+'+b,ans:a+b};},
+    function(){var a=20+Math.floor(Math.random()*60),b=1+Math.floor(Math.random()*19);return{q:a+'−'+b,ans:a-b};},
+    function(){var b=2+Math.floor(Math.random()*8),ans=2+Math.floor(Math.random()*10);return{q:(b*ans)+'÷'+b,ans:ans};},
+    function(){var n=2+Math.floor(Math.random()*8);return{q:n+'²',ans:n*n};}
+  ];
+  var q=questions[Math.floor(Math.random()*questions.length)]();
+  var mob=document.createElement('div');
+  mob.style.cssText='position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:5;';
+  mob.innerHTML=
+    '<div style="font-size:2.2rem;line-height:1;">'
+    +emojis[Math.floor(Math.random()*emojis.length)]
+    +'</div>'
+    +'<div style="font-family:Fredoka One,cursive;font-size:.85rem;color:#fff;background:rgba(0,0,0,.85);padding:3px 10px;border-radius:50px;white-space:nowrap;border:1.5px solid rgba(0,255,0,.4);">'
+    +q.q+'</div>';
+  mob.dataset.ans=String(q.ans);
+  var arena=document.getElementById('sv-arena');
+  if(!arena)return;
+  var topPct=8+Math.random()*65;
+  mob.style.top=topPct+'%';
+  mob.style.right='-90px';
+  var dur=Math.max(4000,11000-SV.wave*800);
+  mob.style.transition='right '+dur+'ms linear';
+  arena.appendChild(mob);
+  SV.mobs.push({el:mob,ans:q.ans,done:false});
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){mob.style.right='110%';});
+  });
+  var delay=Math.max(1200,3500-SV.wave*200);
+  SV.spawnT=setTimeout(function(){if(SV.running)svSpawn();},delay);
+}
+
+function svCheck(){
+  if(!SV.running)return;
+  var arena=document.getElementById('sv-arena');
+  if(!arena)return;
+  var ar=arena.getBoundingClientRect();
+  SV.mobs.forEach(function(m){
+    if(m.done)return;
+    var r=m.el.getBoundingClientRect();
+    if(r.right>=ar.right-8){
+      m.done=true;
+      if(m.el.parentNode)m.el.remove();
+      SV.lives=Math.max(0,SV.lives-1);
+      var sl=document.getElementById('sv-lives');
+      if(sl){var h='';for(var i=0;i<3;i++)h+=(i<SV.lives?'❤️':'🖤');sl.textContent=h;}
+      if(SV.lives<=0)svOver();
+    }
+  });
+  SV.mobs=SV.mobs.filter(function(m){return!m.done;});
+}
+
+function svSubmit(){
+  if(!SV.running)return;
+  var inp=document.getElementById('sv-inp');
+  if(!inp)return;
+  var val=parseFloat((inp.value||'').trim());
+  if(isNaN(val)){inp.focus();return;}
+  inp.value='';
+  var hit=false;
+  SV.mobs.forEach(function(m){
+    if(m.done||hit)return;
+    if(Math.abs(val-m.ans)<0.01){
+      m.done=true;
+      m.el.style.transition='opacity .2s,transform .2s';
+      m.el.style.opacity='0';
+      m.el.style.transform='scale(1.8)';
+      setTimeout(function(){if(m.el.parentNode)m.el.remove();},250);
+      SV.kills++;
+      SV.score+=10+SV.wave*3;
+      var ss=document.getElementById('sv-score');
+      if(ss)ss.textContent=SV.score;
+      hit=true;
+      if(SV.kills%8===0){
+        SV.wave++;
+        var sw=document.getElementById('sv-wave');
+        if(sw)sw.textContent='Wave '+SV.wave+' 🔥';
+      }
+    }
+  });
+  inp.focus();
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    var sv=document.getElementById('s-boss-survival');
+    if(sv&&sv.style.display==='flex')svSubmit();
+  }
+});
+
+function svOver(){
+  SV.running=false;
+  clearInterval(SV.moveT);
+  clearTimeout(SV.spawnT);
+  var reward=Math.round(SV.score/2)+10;
+  setTimeout(function(){
+    alert('🧟 Wave '+SV.wave+' | Score: '+SV.score+' | +'+reward+' coins!');
+    exitSurvival();
+  },300);
+}
+
+function exitSurvival(){
+  SV.running=false;
+  clearInterval(SV.moveT);
+  clearTimeout(SV.spawnT);
+  var a=document.getElementById('sv-arena');
+  if(a)a.innerHTML='';
+  var el=document.getElementById('s-boss-survival');
+  if(el)el.style.display='none';
+  goTo('s-minigames');
+}
+// ══ BOSS QUESTION GENERATOR ══════════════════════════════
+function getBossQ(){
+  var pools=[
+    function(){var a=2+Math.floor(Math.random()*11),b=2+Math.floor(Math.random()*11);return{q:a+'×'+b+'=?',ans:a*b};},
+    function(){var a=10+Math.floor(Math.random()*89),b=10+Math.floor(Math.random()*89);return{q:a+'+'+b+'=?',ans:a+b};},
+    function(){var a=20+Math.floor(Math.random()*79),b=1+Math.floor(Math.random()*19);return{q:a+'−'+b+'=?',ans:a-b};},
+    function(){var b=2+Math.floor(Math.random()*8),ans=2+Math.floor(Math.random()*11);return{q:(b*ans)+'÷'+b+'=?',ans:ans};},
+    function(){var n=2+Math.floor(Math.random()*8);return{q:n+'²=?',ans:n*n};},
+    function(){var n=2+Math.floor(Math.random()*7);return{q:'√'+(n*n)+'=?',ans:n};},
+  ];
+  var q=pools[Math.floor(Math.random()*pools.length)]();
+  var tried=new Set([q.ans]);var w=[];
+  while(w.length<3){
+    var v=Math.max(0,q.ans+[-5,-4,-3,-2,-1,1,2,3,4,5][Math.floor(Math.random()*10)]);
+    if(!tried.has(v)){tried.add(v);w.push(v);}
+  }
+  return{q:q.q,ans:q.ans,opts:[q.ans].concat(w).sort(function(){return Math.random()-.5;})};
+}
+
+// ══ MATH GAUNTLET ════════════════════════════════════════
+var BG={
+  bosses:[
+    {n:'Math Dragon',e:'🐉',hp:6,spd:7000},
+    {n:'Number Demon',e:'😈',hp:8,spd:5000},
+    {n:'Calc Titan',e:'🦹',hp:10,spd:3500}
+  ],
+  cur:0,hp:0,php:3,atk:null,run:false,ans:false
+};
+
+function startBossGauntlet(){
+  BG.cur=0;BG.php=3;BG.run=true;
+  var el=document.getElementById('s-boss-gauntlet');
+  if(el)el.style.display='flex';
+  var r=document.getElementById('bg-result');
+  if(r)r.style.display='none';
+  bgNext();
+}
+
+function bgNext(){
+  var b=BG.bosses[BG.cur];
+  BG.hp=b.hp;BG.ans=false;
+  var bn=document.getElementById('bg-bname');if(bn)bn.textContent=b.e+' '+b.n;
+  var sp=document.getElementById('bg-sprite');if(sp)sp.textContent=b.e;
+  bgHP();bgPHP();bgQ();bgAtk(b.spd);
+}
+
+function bgHP(){
+  var b=BG.bosses[BG.cur];
+  var p=Math.max(0,BG.hp/b.hp*100);
+  var f=document.getElementById('bg-boss-hp');
+  if(f){
+    f.style.width=p+'%';
+    f.style.background=p>50?'linear-gradient(90deg,#FFD740,#FF6D00)':p>25?'linear-gradient(90deg,#FF6D00,#E53935)':'#E53935';
+  }
+}
+
+function bgPHP(){
+  var el=document.getElementById('bg-php');
+  if(el){var h='';for(var i=0;i<3;i++)h+=(i<BG.php?'❤️':'🖤');el.textContent=h;}
+}
+
+function bgAtk(ms){
+  if(BG.atk)clearInterval(BG.atk);
+  var e=0;
+  BG.atk=setInterval(function(){
+    if(!BG.run){clearInterval(BG.atk);return;}
+    e+=100;
+    var p=Math.max(0,100-e/ms*100);
+    var f=document.getElementById('bg-atk-fill');if(f)f.style.width=p+'%';
+    if(p<=0){
+      BG.php--;bgPHP();
+      var s=document.getElementById('bg-status');if(s)s.textContent='👹 Boss attacks!';
+      if(typeof flash==='function')flash('rgba(255,0,0,.4)');
+      if(BG.php<=0)bgLose();
+      e=0;
+    }
+  },100);
+}
+
+function bgQ(){
+  if(!BG.run)return;
+  BG.ans=false;
+  var q=getBossQ();
+  var qe=document.getElementById('bg-q');if(qe)qe.textContent=q.q;
+  var ch=document.getElementById('bg-choices');if(!ch)return;
+  ch.innerHTML='';
+  q.opts.forEach(function(opt){
+    var b=document.createElement('button');
+    b.className='boss-choice';
+    b.textContent=opt;
+    b.onclick=function(){bgPick(opt,q.ans,b,ch);};
+    ch.appendChild(b);
+  });
+}
+
+function bgPick(v,c,btn,ch){
+  if(BG.ans||!BG.run)return;
+  BG.ans=true;
+  if(v===c){
+    btn.classList.add('boss-correct');
+    BG.hp--;bgHP();
+    if(BG.hp<=0){bgWin();return;}
+    setTimeout(bgQ,700);
+  } else {
+    btn.classList.add('boss-wrong');
+    ch.querySelectorAll('.boss-choice').forEach(function(b){
+      if(Number(b.textContent)===c)b.classList.add('boss-correct');
+    });
+    setTimeout(bgQ,900);
+  }
+}
+
+function bgWin(){
+  if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+  BG.cur++;
+  if(BG.cur<BG.bosses.length){
+    var s=document.getElementById('bg-status');if(s)s.textContent='⭐ BOSS DOWN! Next...';
+    setTimeout(bgNext,1800);
+  } else {
+    BG.run=false;
+    var reward=100+BG.php*20;
+    if(typeof addCoins==='function')addCoins(reward);
+    if(typeof makeConfetti==='function')makeConfetti();
+    var r=document.getElementById('bg-result');
+    if(r){
+      document.getElementById('bg-rtitle').textContent='🏆 ALL BOSSES DOWN!';
+      document.getElementById('bg-rsub').textContent='+'+reward+' coins!';
+      r.style.display='flex';
+    }
+  }
+}
+
+function bgLose(){
+  BG.run=false;
+  if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+  if(typeof addCoins==='function')addCoins(15);
+  var r=document.getElementById('bg-result');
+  if(r){
+    document.getElementById('bg-rtitle').textContent='💀 Defeated!';
+    document.getElementById('bg-rsub').textContent='+15 coins for trying!';
+    r.style.display='flex';
+  }
+}
+
+function exitBossGauntlet(){
+  BG.run=false;
+  if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+  var el=document.getElementById('s-boss-gauntlet');if(el)el.style.display='none';
+  goTo('s-minigames');
+}
+
+// ══ SPEED BLITZ ══════════════════════════════════════════
+var BZ={score:0,combo:1,qi:0,total:20,time:20,timer:null,running:false,ans:false};
+
+function startSpeedBlitz(){
+  BZ.score=0;BZ.combo=1;BZ.qi=0;BZ.time=20;BZ.running=true;BZ.ans=false;
+  var el=document.getElementById('s-boss-blitz');if(el)el.style.display='flex';
+  var r=document.getElementById('bl-result');if(r)r.style.display='none';
+  document.getElementById('bl-score').textContent='0';
+  document.getElementById('bl-combo').textContent='1';
+  document.getElementById('bl-cmsg').textContent='';
+  bzQ();
+  if(BZ.timer)clearInterval(BZ.timer);
+  BZ.timer=setInterval(function(){
+    BZ.time=Math.max(0,BZ.time-.1);
+    var p=BZ.time/20*100;
+    var f=document.getElementById('bl-prog');if(f)f.style.width=p+'%';
+    var t=document.getElementById('bl-timer');if(t)t.textContent=Math.ceil(BZ.time)+'s';
+    if(BZ.time<=0)bzEnd();
+  },100);
+}
+
+function bzQ(){
+  if(!BZ.running)return;
+  BZ.ans=false;
+  var q=getBossQ();
+  var qn=document.getElementById('bl-qnum');if(qn)qn.textContent='Q '+(BZ.qi+1)+'/'+BZ.total;
+  var qt=document.getElementById('bl-q');if(qt)qt.textContent=q.q;
+  var ob=document.getElementById('bl-opts');if(!ob)return;
+  ob.innerHTML='';
+  q.opts.forEach(function(opt){
+    var b=document.createElement('button');
+    b.className='blitz-opt';
+    b.textContent=opt;
+    b.onclick=function(){bzPick(opt,q.ans,b,ob);};
+    ob.appendChild(b);
+  });
+}
+
+function bzPick(v,c,btn,ob){
+  if(BZ.ans||!BZ.running)return;
+  BZ.ans=true;BZ.qi++;
+  if(v===c){
+    btn.classList.add('blitz-right');
+    BZ.combo=Math.min(BZ.combo+1,8);
+    var pts=10*BZ.combo;
+    BZ.score+=pts;
+    BZ.time=Math.min(20,BZ.time+1.5);
+    document.getElementById('bl-score').textContent=BZ.score;
+    document.getElementById('bl-combo').textContent=BZ.combo;
+    var cm=document.getElementById('bl-cmsg');
+    if(cm)cm.textContent=BZ.combo>=5?'🔥 COMBO x'+BZ.combo+'!':BZ.combo>=3?'⚡ x'+BZ.combo+'!':'';
+  } else {
+    btn.classList.add('blitz-wrong');
+    ob.querySelectorAll('.blitz-opt').forEach(function(b){
+      if(Number(b.textContent)===c)b.classList.add('blitz-right');
+    });
+    BZ.combo=1;
+    document.getElementById('bl-combo').textContent='1';
+    var cm2=document.getElementById('bl-cmsg');if(cm2)cm2.textContent='';
+  }
+  if(BZ.qi>=BZ.total)bzEnd();
+  else setTimeout(bzQ,520);
+}
+
+function bzEnd(){
+  if(!BZ.running)return;
+  BZ.running=false;
+  clearInterval(BZ.timer);
+  var reward=Math.round(BZ.score/3)+5;
+  if(typeof addCoins==='function')addCoins(reward);
+  if(typeof addXP==='function')addXP(BZ.score/2);
+  var msg=BZ.score>=300?'🌟 LEGENDARY!':BZ.score>=200?'💥 AMAZING!':BZ.score>=100?'👍 Great!':'📚 Keep going!';
+  var r=document.getElementById('bl-result');
+  if(r){
+    document.getElementById('bl-rtitle').textContent='⚡ '+BZ.score+' pts';
+    document.getElementById('bl-rsub').textContent=msg+' +'+reward+' coins!';
+    r.style.display='flex';
+  }
+}
+
+function exitBlitz(){
+  BZ.running=false;
+  clearInterval(BZ.timer);
+  var el=document.getElementById('s-boss-blitz');if(el)el.style.display='none';
+  goTo('s-minigames');
+}
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">

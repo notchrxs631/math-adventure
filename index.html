@@ -4096,6 +4096,9 @@ function startQTimer(){
         var bn=document.getElementById('btn-next');if(bn)bn.style.display='block';
         if(typeof sfxNo==='function')sfxNo();
         if(typeof flash==='function')flash('rgba(255,50,50,.25)');
+        setTimeout(function(){
+          if(G.curQ)showAICoach(G.curQ.q, G.curQ.ans, G.topic);
+        }, 1200);
       }
     }
   },1000);
@@ -4420,41 +4423,61 @@ function resetAllProgress(){
   keys.forEach(function(k){localStorage.removeItem(k);});
   updateStats();updateXPBar();alert('Progress reset!');
 }
+var TEACHER_PIN = localStorage.getItem('teacher_pin') || '123456';
+
 function openTeacher(){
+  var pin = prompt('Enter Teacher PIN (default: 123456):');
+  if(pin === null) return;
+  if(pin !== TEACHER_PIN){
+    alert('❌ Wrong PIN. Ask your teacher for the code.');
+    return;
+  }
   document.getElementById('t-rounds').textContent=getStat('rounds');
   document.getElementById('t-best').textContent=getStat('best');
   document.getElementById('t-streak').textContent=getBestStreak();
   document.getElementById('t-level').textContent=getLevel();
   document.getElementById('t-coins').textContent=getCoins();
   document.getElementById('t-daily').textContent=getDailyStreak();
-  var allTopics=[];if(typeof TIERS!=='undefined')Object.keys(TIERS).forEach(function(tk){TIERS[tk].topics.forEach(function(t){allTopics.push(t.id);});});
+  var allTopics=[];
+  if(typeof TIERS!=='undefined')Object.keys(TIERS).forEach(function(tk){TIERS[tk].topics.forEach(function(t){allTopics.push({id:t.id,meta:t});});});
   var topicsEl=document.getElementById('t-topics');var struggles=[];var rows='';
-  allTopics.forEach(function(id){
-    var data=JSON.parse(localStorage.getItem(userKey('pa_'+id))||'{"c":0,"t":0}');
+  allTopics.forEach(function(item){
+    var data=JSON.parse(localStorage.getItem(userKey('pa_'+item.id))||'{"c":0,"t":0}');
     if(data.t===0)return;
     var pct=Math.round(data.c/data.t*100);
     var col=pct>=80?'#43A047':pct>=50?'#FFD740':'#E53935';
-    // Find CA standard
-    var meta=null;
-    Object.keys(TIERS).forEach(function(tk){
-      var found=TIERS[tk].topics.filter(function(t){return t.id===id;})[0];
-      if(found)meta=found;
-    });
-    var stdChip=meta?('<span style="font-size:10px;background:#E3F2FD;color:#1565C0;padding:1px 6px;border-radius:50px;margin-left:4px;font-weight:700;">'+meta.std+'</span>'):'';
-    var gradeChip=meta?('<span style="font-size:10px;color:#888;margin-left:3px;">'+meta.grade+'</span>'):'';
     rows+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F0F0F0;">'
-      +'<div style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0;"></div>'
-      +'<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:#333;">'+id+stdChip+gradeChip+'</div></div>'
+      +'<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:#333;">'+item.meta.icon+' '+item.meta.name+'</div>'
+      +'<div style="font-size:10px;color:#1565C0;">'+item.meta.std+'</div></div>'
       +'<div style="width:80px;height:6px;background:#F0F0F0;border-radius:99px;overflow:hidden;">'
       +'<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:99px;"></div></div>'
-      +'<div style="font-size:11px;color:#888;min-width:32px;text-align:right;">'+pct+'%</div>'
+      +'<div style="font-size:11px;font-weight:700;color:'+col+';min-width:34px;text-align:right;">'+pct+'%</div>'
       +'</div>';
-    if(pct<60)struggles.push({id:id,pct:pct,std:meta?meta.std:'',grade:meta?meta.grade:''});
+    if(pct<60)struggles.push({name:item.meta.name,pct:pct,std:item.meta.std||''});
   });
-  if(topicsEl)topicsEl.innerHTML=rows||'<div style="font-size:13px;color:#888;">No data yet</div>';
-  var stEl=document.getElementById('t-struggles');if(stEl)stEl.innerHTML=struggles.length?struggles.sort(function(a,b){return a.pct-b.pct;}).map(function(s){return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#FFF3E0;margin-bottom:4px;"><div style="flex:1;"><div style="font-size:12px;font-weight:700;color:#E65100;">'+s.id+'</div><div style="font-size:10px;color:#BF360C;margin-top:1px;">'+s.grade+' · '+s.std+'</div></div><div style="font-size:11px;color:#E65100;font-weight:700;">'+s.pct+'%</div></div>';}).join(''):'<div style="font-size:13px;color:#43A047;">No struggle areas! 💪</div>';
-  var earned=getUserAchievements();var achEl=document.getElementById('t-achievements');if(achEl)achEl.innerHTML=earned.length?earned.join(', '):'None yet';
+  if(topicsEl)topicsEl.innerHTML=rows||'<div style="font-size:13px;color:#888;">Play some rounds first!</div>';
+  var stEl=document.getElementById('t-struggles');
+  if(stEl)stEl.innerHTML=struggles.length
+    ?struggles.sort(function(a,b){return a.pct-b.pct;}).map(function(s){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#FFF3E0;margin-bottom:4px;">'
+        +'<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:#E65100;">'+s.name+'</div>'
+        +'<div style="font-size:10px;color:#BF360C;">'+s.std+'</div></div>'
+        +'<div style="font-size:12px;font-weight:700;color:#E65100;">'+s.pct+'%</div></div>';
+    }).join('')
+    :'<div style="font-size:13px;color:#43A047;">No struggles! 💪</div>';
+  var achEl=document.getElementById('t-achievements');
+  if(achEl){var earned=getUserAchievements();achEl.innerHTML=earned.length?earned.map(function(id){var a=ACHS.find(function(x){return x.id===id;});return a?'<span style="background:#E8F5E9;padding:3px 8px;border-radius:50px;font-size:11px;font-weight:700;color:#1B5E20;margin:2px;display:inline-block;">'+a.icon+' '+a.name+'</span>':'';}).join(''):'None yet';}
   goTo('s-teacher');
+}
+
+function changeTeacherPIN(){
+  var current=prompt('Enter current PIN:');
+  if(current!==TEACHER_PIN){alert('❌ Wrong PIN');return;}
+  var newPin=prompt('Enter new PIN (4-8 digits):');
+  if(!newPin||!/^\d{4,8}$/.test(newPin)){alert('PIN must be 4-8 digits');return;}
+  TEACHER_PIN=newPin;
+  localStorage.setItem('teacher_pin',newPin);
+  alert('✅ PIN changed to: '+newPin);
 }
 function exportReport(){
   var lines=['=== MATH ADVENTURE REPORT ===','Date: '+new Date().toDateString(),'Player: '+(ACTIVE_USER?ACTIVE_USER.avatar+' '+ACTIVE_USER.name:'Guest'),'','STATS:','Rounds: '+getStat('rounds'),'Best: '+getStat('best'),'Streak: '+getBestStreak(),'Level: '+getLevel(),'Coins: '+getCoins(),'Daily streak: '+getDailyStreak(),''];
@@ -4527,6 +4550,12 @@ checkAns=function(){
     }
   }
   __prev();
+  // Show AI coach on wrong answer
+  if(willBeWrong){
+    setTimeout(function(){
+      if(G.curQ)showAICoach(G.curQ.q, G.curQ.ans, G.topic);
+    }, 1200);
+  }
 };
 
 // ══ INIT ══════════════════════════════════════════════════════
@@ -5753,6 +5782,208 @@ function renderStreakPet(){
       : '<div style="font-size:.68rem;color:#E53935;background:#FFEBEE;padding:3px 10px;border-radius:50px;display:inline-block;margin-top:.4rem;">🏆 MAX!</div>')
     +'</div>';
 }
+// ══ AI MATH COACH ═══════════════════════════════════════════
+var AI_COACH_OPEN = false;
+
+function showAICoach(question, correctAnswer, topic){
+  // Remove existing coach panel
+  var existing = document.getElementById('ai-coach-panel');
+  if(existing) existing.remove();
+
+  var panel = document.createElement('div');
+  panel.id = 'ai-coach-panel';
+  panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:linear-gradient(180deg,#1A237E,#0D1B4B);border-top:3px solid #7C3AED;padding:1rem;max-height:55vh;overflow-y:auto;';
+  panel.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">'
+    +'<div style="font-family:\'Fredoka One\',cursive;font-size:.95rem;color:#fff;">🧠 Math Coach</div>'
+    +'<button onclick="document.getElementById(\'ai-coach-panel\').remove()" style="padding:4px 10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:50px;font-family:\'Fredoka One\',cursive;font-size:.72rem;color:#fff;cursor:pointer;">✕ Close</button>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:12px;padding:.75rem;margin-bottom:.5rem;">'
+    +'<div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.25rem;">The question was:</div>'
+    +'<div style="font-family:\'Fredoka One\',cursive;font-size:1.1rem;color:#FFD740;">'+question+'</div>'
+    +'<div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;">Correct answer: <span style="color:#69F0AE;font-weight:700;">'+correctAnswer+'</span></div>'
+    +'</div>'
+    +'<div id="ai-coach-content" style="font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.7;">'
+    +'<div style="text-align:center;padding:1rem;color:rgba(255,255,255,.5);">🤔 Thinking of a way to explain this...</div>'
+    +'</div>'
+    +'<div style="margin-top:.75rem;display:flex;gap:6px;flex-wrap:wrap;" id="ai-coach-followup"></div>';
+
+  document.body.appendChild(panel);
+
+  // Generate explanation using rule-based system (free, no API)
+  setTimeout(function(){
+    var explanation = generateMathExplanation(question, correctAnswer, topic);
+    var contentEl = document.getElementById('ai-coach-content');
+    if(contentEl) contentEl.innerHTML = explanation;
+
+    // Add follow-up buttons
+    var followupEl = document.getElementById('ai-coach-followup');
+    if(followupEl){
+      followupEl.innerHTML =
+        '<button onclick="showStepByStep(\''+question+'\','+correctAnswer+',\''+topic+'\')" style="padding:6px 12px;background:rgba(255,215,64,.15);border:1px solid rgba(255,215,64,.3);border-radius:50px;font-family:\'Fredoka One\',cursive;font-size:.7rem;color:#FFD740;cursor:pointer;">📋 Show Steps</button>'
+        +'<button onclick="showRealWorldExample(\''+topic+'\')" style="padding:6px 12px;background:rgba(102,187,106,.15);border:1px solid rgba(102,187,106,.3);border-radius:50px;font-family:\'Fredoka One\',cursive;font-size:.7rem;color:#69F0AE;cursor:pointer;">🌍 Real World Example</button>'
+        +'<button onclick="showMemoryTrick(\''+topic+'\')" style="padding:6px 12px;background:rgba(191,95,255,.15);border:1px solid rgba(191,95,255,.3);border-radius:50px;font-family:\'Fredoka One\',cursive;font-size:.7rem;color:#CE93D8;cursor:pointer;">💡 Memory Trick</button>';
+    }
+  }, 800);
+}
+
+function generateMathExplanation(question, answer, topic){
+  var q = String(question);
+  var a = String(answer);
+
+  // Multiplication
+  if(q.includes('×')){
+    var parts = q.replace('=?','').split('×');
+    var n1 = parseInt(parts[0]), n2 = parseInt(parts[1]);
+    return '<div style="background:rgba(255,215,64,.1);border-radius:10px;padding:.65rem;margin-bottom:.5rem;border-left:3px solid #FFD740;">'
+      +'<div style="font-family:\'Fredoka One\',cursive;color:#FFD740;margin-bottom:.3rem;">Why is '+n1+'×'+n2+' = '+a+'?</div>'
+      +'<div>Think of it as <strong style="color:#FFD740;">'+n2+' groups of '+n1+'</strong>:</div>'
+      +'<div style="margin:.4rem 0;font-family:monospace;background:rgba(0,0,0,.2);padding:.4rem;border-radius:6px;">'
+      +Array(n2).fill(Array(n1).fill('●').join(' ')).join('<br>')
+      +'</div>'
+      +'<div>Count all the dots: <strong style="color:#69F0AE;">'+a+'</strong> ✓</div>'
+      +'</div>';
+  }
+
+  // Addition
+  if(q.includes('+')){
+    var parts2 = q.replace('=?','').split('+');
+    var n3 = parseInt(parts2[0]), n4 = parseInt(parts2[1]);
+    return '<div style="background:rgba(66,165,245,.1);border-radius:10px;padding:.65rem;margin-bottom:.5rem;border-left:3px solid #42A5F5;">'
+      +'<div style="font-family:\'Fredoka One\',cursive;color:#42A5F5;margin-bottom:.3rem;">Adding '+n3+' + '+n4+'</div>'
+      +'<div>Start at <strong style="color:#FFD740;">'+n3+'</strong>, then count up <strong style="color:#FFD740;">'+n4+'</strong> more:</div>'
+      +'<div style="margin:.4rem 0;background:rgba(0,0,0,.2);padding:.4rem;border-radius:6px;font-family:monospace;">'
+      +n3+' → '+(n3+Math.floor(n4/2))+' → <strong style="color:#69F0AE;">'+a+'</strong>'
+      +'</div>'
+      +'<div>Break it down: '+n3+' + '+Math.floor(n4/2)+' = '+(n3+Math.floor(n4/2))+', then + '+Math.ceil(n4/2)+' = <strong style="color:#69F0AE;">'+a+'</strong></div>'
+      +'</div>';
+  }
+
+  // Subtraction
+  if(q.includes('−')){
+    var parts3 = q.replace('=?','').split('−');
+    var n5 = parseInt(parts3[0]), n6 = parseInt(parts3[1]);
+    return '<div style="background:rgba(239,83,80,.1);border-radius:10px;padding:.65rem;margin-bottom:.5rem;border-left:3px solid #EF5350;">'
+      +'<div style="font-family:\'Fredoka One\',cursive;color:#EF5350;margin-bottom:.3rem;">Subtracting: '+n5+' − '+n6+'</div>'
+      +'<div>Think: <strong style="color:#FFD740;">"What do I add to '+n6+' to get '+n5+'?"</strong></div>'
+      +'<div style="margin:.4rem 0;background:rgba(0,0,0,.2);padding:.4rem;border-radius:6px;">'
+      +n6+' + <strong style="color:#69F0AE;">'+a+'</strong> = '+n5
+      +'</div>'
+      +'<div>So '+n5+' − '+n6+' = <strong style="color:#69F0AE;">'+a+'</strong> ✓</div>'
+      +'</div>';
+  }
+
+  // Division
+  if(q.includes('÷')){
+    var parts4 = q.replace('=?','').split('÷');
+    var n7 = parseInt(parts4[0]), n8 = parseInt(parts4[1]);
+    return '<div style="background:rgba(102,187,106,.1);border-radius:10px;padding:.65rem;margin-bottom:.5rem;border-left:3px solid #66BB6A;">'
+      +'<div style="font-family:\'Fredoka One\',cursive;color:#66BB6A;margin-bottom:.3rem;">Dividing: '+n7+' ÷ '+n8+'</div>'
+      +'<div>Ask: <strong style="color:#FFD740;">"How many groups of '+n8+' fit into '+n7+'?"</strong></div>'
+      +'<div style="margin:.4rem 0;background:rgba(0,0,0,.2);padding:.4rem;border-radius:6px;font-family:monospace;">'
+      +Array(parseInt(a)).fill('['+Array(n8).fill('●').join('')+']').join(' ')
+      +'</div>'
+      +'<div><strong style="color:#69F0AE;">'+a+'</strong> groups of '+n8+' = '+n7+' ✓</div>'
+      +'</div>';
+  }
+
+  // Squares
+  if(q.includes('²')){
+    var base = parseInt(q.replace('²','').replace('=?',''));
+    return '<div style="background:rgba(206,147,216,.1);border-radius:10px;padding:.65rem;margin-bottom:.5rem;border-left:3px solid #CE93D8;">'
+      +'<div style="font-family:\'Fredoka One\',cursive;color:#CE93D8;margin-bottom:.3rem;">'+base+'² means '+base+' × '+base+'</div>'
+      +'<div>A square number = a number multiplied by itself</div>'
+      +'<div style="margin:.4rem 0;background:rgba(0,0,0,.2);padding:.4rem;border-radius:6px;">'
+      +Array(base).fill(Array(base).fill('■').join(' ')).join('<br>')
+      +'</div>'
+      +'<div>Count the squares: <strong style="color:#69F0AE;">'+a+'</strong> ✓</div>'
+      +'</div>';
+  }
+
+  // Default
+  return '<div style="background:rgba(255,255,255,.08);border-radius:10px;padding:.65rem;">'
+    +'<div style="font-family:\'Fredoka One\',cursive;color:#FFD740;margin-bottom:.3rem;">The answer is '+a+'</div>'
+    +'<div>Here\'s how to think about it:</div>'
+    +'<div style="margin:.4rem 0;color:#69F0AE;">• Read the question carefully</div>'
+    +'<div style="color:#69F0AE;">• Break it into smaller parts</div>'
+    +'<div style="color:#69F0AE;">• Check your answer by working backwards</div>'
+    +'</div>';
+}
+
+function showStepByStep(question, answer, topic){
+  var el = document.getElementById('ai-coach-content');
+  if(!el) return;
+  var q = String(question);
+  var steps = [];
+
+  if(q.includes('×')){
+    var p = q.replace('=?','').split('×');
+    var a = parseInt(p[0]), b = parseInt(p[1]);
+    steps = [
+      'Write down: '+a+' × '+b,
+      'Break '+b+' into parts: '+Math.floor(b/2)+' + '+Math.ceil(b/2),
+      a+' × '+Math.floor(b/2)+' = '+(a*Math.floor(b/2)),
+      a+' × '+Math.ceil(b/2)+' = '+(a*Math.ceil(b/2)),
+      'Add them: '+(a*Math.floor(b/2))+' + '+(a*Math.ceil(b/2))+' = '+answer,
+    ];
+  } else if(q.includes('÷')){
+    var p2 = q.replace('=?','').split('÷');
+    var c = parseInt(p2[0]), d = parseInt(p2[1]);
+    steps = [
+      'We need: '+c+' ÷ '+d,
+      'Ask: '+d+' × ? = '+c,
+      'Try: '+d+' × '+answer+' = '+c,
+      'Check: '+d+' × '+answer+' = '+(d*answer),
+      (d*answer===c?'✓ Correct! The answer is '+answer:'Keep trying...'),
+    ];
+  } else {
+    steps = ['Read: '+q,'Identify the operation','Calculate carefully','Answer: '+answer,'Check by reversing'];
+  }
+
+  el.innerHTML = '<div style="font-family:\'Fredoka One\',cursive;color:#FFD740;margin-bottom:.5rem;">📋 Step by Step:</div>'
+    + steps.map(function(s,i){
+      return '<div style="display:flex;gap:8px;margin-bottom:.4rem;align-items:flex-start;">'
+        +'<div style="min-width:22px;height:22px;border-radius:50%;background:#7C3AED;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;font-family:\'Fredoka One\',cursive;flex-shrink:0;">'+(i+1)+'</div>'
+        +'<div style="font-size:.82rem;color:rgba(255,255,255,.85);padding-top:2px;">'+s+'</div>'
+        +'</div>';
+    }).join('');
+}
+
+function showRealWorldExample(topic){
+  var examples = {
+    multiplication: '🛒 If a pack has 6 eggs and you buy 4 packs, how many eggs total? 6×4=24 eggs!',
+    addition: '💰 You have $35 and earn $28 more. How much do you have? $35+$28=$63!',
+    subtraction: '🍕 You have 20 slices and eat 8. How many left? 20−8=12 slices!',
+    division: '🍫 Split 24 chocolates equally among 6 friends. Each gets 24÷6=4 chocolates!',
+    fractions: '🍕 You eat 3 slices of an 8-slice pizza. You ate 3/8 of the pizza!',
+    percentages: '🏷️ A $80 shirt is 25% off. You save $80×0.25=$20, paying only $60!',
+    default: '📐 Math is everywhere — in cooking, shopping, sports, and building!',
+  };
+  var el = document.getElementById('ai-coach-content');
+  var ex = examples[topic] || examples.default;
+  if(el) el.innerHTML = '<div style="background:rgba(102,187,106,.1);border-radius:10px;padding:.75rem;border-left:3px solid #66BB6A;">'
+    +'<div style="font-family:\'Fredoka One\',cursive;color:#69F0AE;margin-bottom:.4rem;">🌍 Real World:</div>'
+    +'<div style="font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.7;">'+ex+'</div>'
+    +'</div>';
+}
+
+function showMemoryTrick(topic){
+  var tricks = {
+    multiplication: '🧠 For ×9: multiply by 10, then subtract the number! 9×7 = 70−7 = 63',
+    addition: '🧠 Add the bigger number first! 8+47 = 47+8 = 55 (easier to count up from 47)',
+    subtraction: '🧠 Count UP from the smaller number! 63−47: go from 47→50 (+3) →63 (+13) = 16',
+    division: '🧠 Division is just multiplication backwards! If 6×7=42, then 42÷6=7',
+    fractions: '🧠 Same denominator = add tops only! 1/4+2/4 = 3/4 (denominators stay!)',
+    percentages: '🧠 10% = move decimal left once! 10% of 80 = 8.0. 20% = double that = 16!',
+    default: '🧠 Always check your answer by working backwards!',
+  };
+  var el = document.getElementById('ai-coach-content');
+  var trick = tricks[topic] || tricks.default;
+  if(el) el.innerHTML = '<div style="background:rgba(206,147,216,.1);border-radius:10px;padding:.75rem;border-left:3px solid #CE93D8;">'
+    +'<div style="font-family:\'Fredoka One\',cursive;color:#CE93D8;margin-bottom:.4rem;">💡 Memory Trick:</div>'
+    +'<div style="font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.7;">'+trick+'</div>'
+    +'</div>';
+}
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">
@@ -5810,9 +6041,8 @@ function renderStreakPet(){
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">📚 Topic Mastery</div><div id="t-topics" style="font-size:13px;color:#888;">Play some rounds first!</div></div>
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">⚠️ Struggles</div><div id="t-struggles" style="font-size:13px;color:#888;">No data yet.</div></div>
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">🏆 Achievements</div><div id="t-achievements" style="font-size:13px;color:#888;">None yet.</div></div>
-  <button onclick="exportReport()" style="width:100%;padding:13px;background:linear-gradient(135deg,#1565C0,#0D47A1);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #003082;cursor:pointer;">📋 Copy Report</button>
+  <button onclick="exportReport()" <button onclick="changeTeacherPIN()" style="width:100%;padding:13px;background:linear-gradient(135deg,#FF6B35,#E53935);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #7f0000;cursor:pointer;margin-top:.5rem;">🔑 Change PIN</button>style="width:100%;padding:13px;background:linear-gradient(135deg,#1565C0,#0D47A1);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #003082;cursor:pointer;">📋 Copy Report</button>
 </div>
-
 <div id="s-boss-gauntlet" class="boss-overlay" style="background:linear-gradient(180deg,#1a0000,#4a0000,#7f0000);">
   <button onclick="exitBossGauntlet()" style="position:absolute;top:12px;right:12px;z-index:20;padding:6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:50px;background:rgba(0,0,0,.4);font-family:'Fredoka One',cursive;font-size:.75rem;color:rgba(255,255,255,.7);cursor:pointer;">Exit</button>
   <div style="width:100%;padding:.75rem 1rem;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.4);border-bottom:2px solid rgba(255,50,50,.3);">

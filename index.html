@@ -4365,6 +4365,7 @@ function getDailyQuestion(){
   return qTypes[Math.floor(seededRand(seed)*qTypes.length)](seed);
 }
 function openDaily(){
+  setTimeout(renderStreakPet, 50);
   var d=new Date();
   var dlbl=document.getElementById('daily-date-lbl');if(dlbl)dlbl.textContent=d.toDateString();
   var streak=getDailyStreak();
@@ -5725,6 +5726,33 @@ function exitBlitz(){
   var el=document.getElementById('s-boss-blitz');if(el)el.style.display='none';
   goTo('s-minigames');
 }
+// ══ STREAK PET ════════════════════════════════════════════
+var PETS=[
+  {min:0,  emoji:'🥚', name:'Egg',      msg:'Keep doing daily challenges!'},
+  {min:3,  emoji:'🐣', name:'Hatchling',msg:'It hatched! Keep going!'},
+  {min:7,  emoji:'🐥', name:'Chick',    msg:"Don't break the streak!"},
+  {min:14, emoji:'🐔', name:'Chicken',  msg:'Thriving! Stay consistent!'},
+  {min:30, emoji:'🦅', name:'Eagle',    msg:'Soaring! Legendary!'},
+  {min:60, emoji:'🐉', name:'Dragon',   msg:'🔥 MAX POWER!'}
+];
+
+function renderStreakPet(){
+  var el=document.getElementById('daily-pet-display');
+  if(!el)return;
+  var s=getDailyStreak();
+  var pet=PETS[0];
+  for(var i=PETS.length-1;i>=0;i--){if(s>=PETS[i].min){pet=PETS[i];break;}}
+  var next=null;
+  for(var j=0;j<PETS.length;j++){if(PETS[j].min>s){next=PETS[j];break;}}
+  el.innerHTML='<div style="text-align:center;padding:.75rem .5rem;">'
+    +'<div style="font-size:3.8rem;display:inline-block;">'+pet.emoji+'</div>'
+    +'<div style="font-family:\'Fredoka One\',cursive;font-size:.95rem;color:#7C3AED;margin-top:.25rem;">'+pet.name+'</div>'
+    +'<div style="font-size:.72rem;color:#888;margin-top:2px;">'+pet.msg+'</div>'
+    +(next
+      ? '<div style="font-size:.68rem;color:#1565C0;margin-top:.4rem;background:#E3F2FD;padding:3px 10px;border-radius:50px;display:inline-block;">'+next.emoji+' '+(next.min-s)+' days to evolve!</div>'
+      : '<div style="font-size:.68rem;color:#E53935;background:#FFEBEE;padding:3px 10px;border-radius:50px;display:inline-block;margin-top:.4rem;">🏆 MAX!</div>')
+    +'</div>';
+}
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">
@@ -5732,7 +5760,8 @@ function exitBlitz(){
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;box-shadow:0 6px 24px rgba(0,0,0,.2);">
     <div style="font-size:11px;color:#888;" id="daily-date-lbl"></div>
     <div style="display:flex;align-items:center;gap:10px;margin:.5rem 0 .75rem;"><div><div style="font-size:10px;color:#888;font-weight:700;">STREAK</div><div id="daily-streak-badge" style="padding:4px 12px;border-radius:50px;background:linear-gradient(135deg,#FF6B35,#F7931E);font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;display:inline-block;">0 days 🔥</div></div><div style="flex:1;text-align:right;"><div style="font-size:10px;color:#888;font-weight:700;margin-bottom:3px;">THIS WEEK</div><div id="daily-week-dots"></div></div></div>
-    <div id="daily-body"></div>
+    <div id="daily-pet-display" style="background:linear-gradient(135deg,#F3E8FF,#EDE9FE);border-radius:16px;margin-bottom:.75rem;border:2px solid #DDD6FE;"></div>
+<div id="daily-body"></div>
   </div>
 </div>
 

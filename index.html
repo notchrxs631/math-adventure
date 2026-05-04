@@ -4509,6 +4509,7 @@ loadQ=function(){_origLoadQ();startQTimer();
   setTimeout(function(){
     if(G.curQ)coachNewQuestion(G.curQ.q, G.curQ.ans, G.topic);
   }, 100);
+};
 var _origCheckAns=checkAns;
 checkAns=function(){
   stopQTimer();

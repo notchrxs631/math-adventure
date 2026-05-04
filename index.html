@@ -4504,7 +4504,11 @@ function showInsights(){
 
 // ══ PATCH loadQ / checkAns FOR TIMER + XP + BOOST ════════════
 var _origLoadQ=loadQ;
-loadQ=function(){_origLoadQ();startQTimer();updateHintCounter&&updateHintCounter();};
+loadQ=function(){_origLoadQ();startQTimer();
+  // Coach greets new question
+  setTimeout(function(){
+    if(G.curQ)coachNewQuestion(G.curQ.q, G.curQ.ans, G.topic);
+  }, 100);
 var _origCheckAns=checkAns;
 checkAns=function(){
   stopQTimer();
@@ -4517,9 +4521,9 @@ checkAns=function(){
   _origCheckAns();
   if(G.answered){
     var ok=inp&&inp.classList.contains('correct');
-    if(ok){addXP(10+G.streak*2);}
-    updateBestStreak(G.streak);updateXPBar();
-    PA_save(G.topic,!!ok);
+   if(ok){addXP(10+G.streak*2);coachCorrectAnswer();}
+updateBestStreak(G.streak);updateXPBar();
+PA_save(G.topic,!!ok);
   }
 };
 
@@ -4551,7 +4555,8 @@ checkAns=function(){
   }
   __prev();
   // Show AI coach on wrong answer
-  if(willBeWrong){
+ if(willBeWrong){
+    coachWrongAnswer();
     setTimeout(function(){
       if(G.curQ)showAICoach(G.curQ.q, G.curQ.ans, G.topic);
     }, 1200);
@@ -4560,7 +4565,138 @@ checkAns=function(){
 
 // ══ INIT ══════════════════════════════════════════════════════
 setTimeout(function(){updateXPBar();loadSettings&&loadSettings();updateHintCounter&&updateHintCounter();},100);
+// ══ ROBOT COACH — KhanMigo style tutor ════════════════════════
+var COACH_HINTS = {
+  multiplication: [
+    "🤔 Think of it as repeated addition! What's the first number added to itself?",
+    "💡 Try skip counting! Can you count by {a}s up to {b} times?",
+    "🧠 Break it down! What's {a} × {half}? Then double it!",
+    "⭐ Remember your times tables! {a} × {b} is close to {a} × 10...",
+  ],
+  addition: [
+    "🤔 Start with the bigger number and count up!",
+    "💡 Try breaking {b} into parts to make it easier!",
+    "🧠 Round {a} to the nearest 10, then adjust!",
+    "⭐ Can you make a 10? What do you need to add to {a} to get there?",
+  ],
+  subtraction: [
+    "🤔 Think: what do I ADD to {b} to get {a}?",
+    "💡 Count up from {b} to {a} — how many steps?",
+    "🧠 Round to the nearest 10 first, then adjust!",
+    "⭐ Try: {a} - {b} = ? Think of it on a number line!",
+  ],
+  division: [
+    "🤔 Division is multiplication backwards! What × {b} = {a}?",
+    "💡 How many groups of {b} can fit into {a}?",
+    "🧠 Try skip counting by {b}s until you reach {a}!",
+    "⭐ Use what you know! If {b} × 5 = {b5}, is {a} bigger or smaller?",
+  ],
+  default: [
+    "🤔 Read the question carefully. What operation do you see?",
+    "💡 Break it into smaller steps. What do you know for sure?",
+    "🧠 Try working backwards from what you know!",
+    "⭐ Take your time! Check your work before submitting.",
+  ]
+};
 
+var COACH_STATE = {
+  hintIndex: 0,
+  topic: '',
+  question: '',
+  answer: null,
+  shown: false
+};
+
+function coachNewQuestion(q, ans, topic){
+  COACH_STATE.hintIndex = 0;
+  COACH_STATE.topic = topic || 'default';
+  COACH_STATE.question = String(q);
+  COACH_STATE.answer = ans;
+  COACH_STATE.shown = false;
+
+  // Greet the question
+  var greetings = [
+    "Ready? Take your time! 😊",
+    "You got this! Think it through 🧠",
+    "Let's solve this together! 💪",
+    "Read carefully first! 🤔",
+    "What operation do you see? 👀",
+  ];
+  setRobotBubble(greetings[Math.floor(Math.random()*greetings.length)], false);
+}
+
+function coachGiveHint(){
+  var topic = COACH_STATE.topic;
+  // Pick hint pool
+  var pool = COACH_HINTS[topic] || COACH_HINTS.default;
+  // Also try to detect from question
+  var q = COACH_STATE.question;
+  if(q.includes('×')) pool = COACH_HINTS.multiplication;
+  else if(q.includes('+')) pool = COACH_HINTS.addition;
+  else if(q.includes('−')||q.includes('-')) pool = COACH_HINTS.subtraction;
+  else if(q.includes('÷')) pool = COACH_HINTS.division;
+
+  var hint = pool[Math.min(COACH_STATE.hintIndex, pool.length-1)];
+
+  // Fill in numbers from the question
+  var parts = q.replace('=?','').replace('?','');
+  if(q.includes('×')){var ns=parts.split('×');hint=hint.replace('{a}',ns[0]||'').replace('{b}',ns[1]||'').replace('{half}',Math.floor((parseInt(ns[1])||0)/2));}
+  else if(q.includes('+')){var ns2=parts.split('+');hint=hint.replace('{a}',ns2[0]||'').replace('{b}',ns2[1]||'');}
+  else if(q.includes('−')){var ns3=parts.split('−');hint=hint.replace('{a}',ns3[0]||'').replace('{b}',ns3[1]||'');}
+  else if(q.includes('÷')){var ns4=parts.split('÷');hint=hint.replace('{a}',ns4[0]||'').replace('{b}',ns4[1]||'').replace('{b5}',(parseInt(ns4[1])||0)*5);}
+
+  COACH_STATE.hintIndex++;
+  setRobotBubble(hint, true);
+}
+
+function coachWrongAnswer(){
+  var msgs = [
+    "Not quite! 🤔 Think about it differently...",
+    "Close! Try again — use a different strategy 💡",
+    "Don't give up! Here's another way to think about it:",
+    "Almost! Let me give you a clue 🧠",
+  ];
+  var msg = msgs[Math.floor(Math.random()*msgs.length)];
+  setRobotBubble(msg, true);
+  // Auto show a hint after wrong answer
+  setTimeout(coachGiveHint, 1500);
+}
+
+function coachCorrectAnswer(){
+  var msgs = [
+    "🎉 Excellent! You got it!",
+    "⭐ Amazing work! Keep it up!",
+    "🔥 Perfect! You're on fire!",
+    "💪 Nailed it! Great job!",
+    "🌟 Brilliant! That's exactly right!",
+  ];
+  setRobotBubble(msgs[Math.floor(Math.random()*msgs.length)], false);
+}
+
+function setRobotBubble(text, isHint){
+  var bubble = document.getElementById('robot-bubble');
+  if(!bubble) return;
+  bubble.textContent = text;
+  bubble.style.background = isHint
+    ? 'linear-gradient(135deg,rgba(124,58,237,.2),rgba(91,33,182,.2))'
+    : 'rgba(255,255,255,.1)';
+  bubble.style.borderColor = isHint ? '#7C3AED' : 'rgba(255,255,255,.2)';
+  // Animate
+  bubble.style.transform = 'scale(1.03)';
+  setTimeout(function(){bubble.style.transform = 'scale(1)';}, 200);
+}
+
+// Add hint button to game screen
+(function addCoachButton(){
+  var qCard = document.querySelector('.q-card');
+  if(!qCard) return;
+  var btn = document.createElement('button');
+  btn.id = 'coach-hint-btn';
+  btn.style.cssText = 'width:100%;padding:8px;margin-top:.4rem;background:rgba(124,58,237,.15);border:1.5px solid rgba(124,58,237,.4);border-radius:50px;font-family:Fredoka One,cursive;font-size:.78rem;color:#A78BFA;cursor:pointer;transition:all .15s;';
+  btn.textContent = '🧠 Ask Coach for a Hint';
+  btn.onclick = function(){coachGiveHint();};
+  qCard.appendChild(btn);
+})();
 
 // ══════════════════════════════════════════════════════════════
 //  TIME TRACKING — per-topic session times

@@ -5489,7 +5489,7 @@ function startBossGauntlet(){
 function bgNext(){
   var b=BG.bosses[BG.cur];
   BG.hp=b.hp;BG.ans=false;
-  var bn=document.getElementById('bg-bname');if(bn)bn.textContent=b.e+' '+b.n;
+  var bn=document.getElementById('bg-boss-name');if(bn)bn.textContent=b.e+' '+b.n;
   var sp=document.getElementById('bg-sprite');if(sp)sp.textContent=b.e;
   bgHP();bgPHP();bgQ();bgAtk(b.spd);
 }
@@ -5505,7 +5505,7 @@ function bgHP(){
 }
 
 function bgPHP(){
-  var el=document.getElementById('bg-php');
+  var el=document.getElementById('bg-player-hp');
   if(el){var h='';for(var i=0;i<3;i++)h+=(i<BG.php?'❤️':'🖤');el.textContent=h;}
 }
 
@@ -5573,8 +5573,8 @@ function bgWin(){
     if(typeof makeConfetti==='function')makeConfetti();
     var r=document.getElementById('bg-result');
     if(r){
-      document.getElementById('bg-rtitle').textContent='🏆 ALL BOSSES DOWN!';
-      document.getElementById('bg-rsub').textContent='+'+reward+' coins!';
+    document.getElementById('bg-result-title').textContent='🏆 ALL BOSSES DOWN!';
+document.getElementById('bg-result-sub').textContent='+'+reward+' coins!';
       r.style.display='flex';
     }
   }
@@ -5586,8 +5586,8 @@ function bgLose(){
   if(typeof addCoins==='function')addCoins(15);
   var r=document.getElementById('bg-result');
   if(r){
-    document.getElementById('bg-rtitle').textContent='💀 Defeated!';
-    document.getElementById('bg-rsub').textContent='+15 coins for trying!';
+   document.getElementById('bg-result-title').textContent='💀 Defeated!';
+document.getElementById('bg-result-sub').textContent='+15 coins for trying!';
     r.style.display='flex';
   }
 }

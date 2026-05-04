@@ -5469,12 +5469,19 @@ function getBossQ(){
 
 // ══ MATH GAUNTLET ════════════════════════════════════════
 var BG={
+  cur:0,hp:0,php:3,atk:null,run:false,ans:false,
   bosses:[
-    {n:'Math Dragon',e:'🐉',hp:6,spd:7000},
-    {n:'Number Demon',e:'😈',hp:8,spd:5000},
-    {n:'Calc Titan',e:'🦹',hp:10,spd:3500}
-  ],
-  cur:0,hp:0,php:3,atk:null,run:false,ans:false
+    {n:'Slime King',     e:'🟢',hp:4, spd:12000,reward:20, desc:'A wobbly warm-up!'},
+    {n:'Math Goblin',    e:'👺',hp:5, spd:10000,reward:25, desc:'Getting sneaky...'},
+    {n:'Number Troll',   e:'👹',hp:6, spd:8500, reward:30, desc:'Watch the timer!'},
+    {n:'Equation Witch', e:'🧙',hp:7, spd:7500, reward:40, desc:'She casts fast!'},
+    {n:'Math Dragon',    e:'🐉',hp:8, spd:6500, reward:50, desc:'Fire and numbers!'},
+    {n:'Shadow Demon',   e:'😈',hp:9, spd:5500, reward:65, desc:'Darkness incoming!'},
+    {n:'Number Titan',   e:'🦹',hp:10,spd:4500, reward:80, desc:'Pure math power!'},
+    {n:'Chaos Wizard',   e:'🧝',hp:11,spd:3800, reward:100,desc:'Almost impossible!'},
+    {n:'Calc Destroyer', e:'💀',hp:12,spd:3000, reward:130,desc:'Survive if you can!'},
+    {n:'Math God',       e:'⚡',hp:15,spd:2200, reward:200,desc:'THE FINAL BOSS!'},
+  ]
 };
 
 function startBossGauntlet(){
@@ -5491,6 +5498,8 @@ function bgNext(){
   BG.hp=b.hp;BG.ans=false;
   var bn=document.getElementById('bg-boss-name');if(bn)bn.textContent=b.e+' '+b.n;
   var sp=document.getElementById('bg-sprite');if(sp)sp.textContent=b.e;
+  var st=document.getElementById('bg-status');if(st)st.textContent=b.desc;
+  var lvlEl=document.getElementById('bg-boss-level');if(lvlEl)lvlEl.textContent='Boss '+(BG.cur+1)+'/'+BG.bosses.length;
   bgHP();bgPHP();bgQ();bgAtk(b.spd);
 }
 
@@ -5500,7 +5509,7 @@ function bgHP(){
   var f=document.getElementById('bg-boss-hp');
   if(f){
     f.style.width=p+'%';
-    f.style.background=p>50?'linear-gradient(90deg,#FFD740,#FF6D00)':p>25?'linear-gradient(90deg,#FF6D00,#E53935)':'#E53935';
+    f.style.background=p>60?'linear-gradient(90deg,#69F0AE,#FFD740)':p>30?'linear-gradient(90deg,#FFD740,#FF6D00)':'linear-gradient(90deg,#FF6D00,#E53935)';
   }
 }
 
@@ -5516,13 +5525,21 @@ function bgAtk(ms){
     if(!BG.run){clearInterval(BG.atk);return;}
     e+=100;
     var p=Math.max(0,100-e/ms*100);
-    var f=document.getElementById('bg-atk-fill');if(f)f.style.width=p+'%';
+    var f=document.getElementById('bg-atk-fill');
+    if(f){
+      f.style.width=p+'%';
+      f.style.background=p>50?'#42A5F5':p>25?'#FFD740':'#E53935';
+    }
+    var tl=document.getElementById('bg-time-left');
+    if(tl)tl.textContent=Math.ceil((ms-e)/1000)+'s';
     if(p<=0){
       BG.php--;bgPHP();
-      var s=document.getElementById('bg-status');if(s)s.textContent='👹 Boss attacks!';
+      var st=document.getElementById('bg-status');
+      if(st)st.textContent='⏰ Too slow! -1 ❤️';
       if(typeof flash==='function')flash('rgba(255,0,0,.4)');
-      if(BG.php<=0)bgLose();
+      if(BG.php<=0){bgLose();return;}
       e=0;
+      bgQ();
     }
   },100);
 }
@@ -5549,53 +5566,79 @@ function bgPick(v,c,btn,ch){
   if(v===c){
     btn.classList.add('boss-correct');
     BG.hp--;bgHP();
-    if(BG.hp<=0){bgWin();return;}
-    setTimeout(bgQ,700);
+    var st=document.getElementById('bg-status');
+    if(BG.hp<=0){bgWinBoss();return;}
+    if(st)st.textContent='💥 Hit! '+BG.hp+' HP left!';
+    if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+    setTimeout(function(){
+      bgAtk(BG.bosses[BG.cur].spd);
+      bgQ();
+    },500);
   } else {
     btn.classList.add('boss-wrong');
     ch.querySelectorAll('.boss-choice').forEach(function(b){
       if(Number(b.textContent)===c)b.classList.add('boss-correct');
     });
+    var st2=document.getElementById('bg-status');
+    if(st2)st2.textContent='❌ Wrong! Be careful!';
+    BG.ans=false;
     setTimeout(bgQ,900);
   }
 }
 
-function bgWin(){
+function bgWinBoss(){
   if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+  var b=BG.bosses[BG.cur];
+  if(typeof addCoins==='function')addCoins(b.reward);
   BG.cur++;
   if(BG.cur<BG.bosses.length){
-    var s=document.getElementById('bg-status');if(s)s.textContent='⭐ BOSS DOWN! Next...';
-    setTimeout(bgNext,1800);
+    var st=document.getElementById('bg-status');
+    if(st)st.textContent='⭐ BOSS DOWN! +'+b.reward+' coins! Next boss incoming...';
+    setTimeout(bgNext,2000);
   } else {
-    BG.run=false;
-    var reward=100+BG.php*20;
-    if(typeof addCoins==='function')addCoins(reward);
-    if(typeof makeConfetti==='function')makeConfetti();
-    var r=document.getElementById('bg-result');
-    if(r){
-    document.getElementById('bg-result-title').textContent='🏆 ALL BOSSES DOWN!';
-document.getElementById('bg-result-sub').textContent='+'+reward+' coins!';
-      r.style.display='flex';
-    }
+    bgWinAll();
+  }
+}
+
+function bgWinAll(){
+  BG.run=false;
+  if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
+  if(typeof addCoins==='function')addCoins(500);
+  if(typeof addXP==='function')addXP(200);
+  if(typeof makeConfetti==='function')makeConfetti();
+  var r=document.getElementById('bg-result');
+  if(r){
+    document.getElementById('bg-result-title').textContent='🏆 ALL 10 BOSSES DEFEATED!';
+    document.getElementById('bg-result-sub').textContent='You are a Math Legend! +500 coins!';
+    r.style.display='flex';
   }
 }
 
 function bgLose(){
   BG.run=false;
   if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
-  if(typeof addCoins==='function')addCoins(15);
+  var reached=BG.cur+1;
+  var reward=reached*10;
+  if(typeof addCoins==='function')addCoins(reward);
   var r=document.getElementById('bg-result');
   if(r){
-   document.getElementById('bg-result-title').textContent='💀 Defeated!';
-document.getElementById('bg-result-sub').textContent='+15 coins for trying!';
+    document.getElementById('bg-result-title').textContent='💀 Defeated on Boss '+reached+'!';
+    document.getElementById('bg-result-sub').textContent='You reached Boss '+reached+'/10! +'+reward+' coins!';
     r.style.display='flex';
   }
+}
+
+function bgRetry(){
+  var r=document.getElementById('bg-result');
+  if(r)r.style.display='none';
+  startBossGauntlet();
 }
 
 function exitBossGauntlet(){
   BG.run=false;
   if(BG.atk){clearInterval(BG.atk);BG.atk=null;}
-  var el=document.getElementById('s-boss-gauntlet');if(el)el.style.display='none';
+  var el=document.getElementById('s-boss-gauntlet');
+  if(el)el.style.display='none';
   goTo('s-minigames');
 }
 

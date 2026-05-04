@@ -5651,7 +5651,7 @@ function startSpeedBlitz(){
   var r=document.getElementById('bl-result');if(r)r.style.display='none';
   document.getElementById('bl-score').textContent='0';
   document.getElementById('bl-combo').textContent='1';
-  document.getElementById('bl-cmsg').textContent='';
+  document.getElementById('bl-combo-msg').textContent='';
   bzQ();
   if(BZ.timer)clearInterval(BZ.timer);
   BZ.timer=setInterval(function(){
@@ -5691,8 +5691,9 @@ function bzPick(v,c,btn,ob){
     BZ.time=Math.min(20,BZ.time+1.5);
     document.getElementById('bl-score').textContent=BZ.score;
     document.getElementById('bl-combo').textContent=BZ.combo;
-    var cm=document.getElementById('bl-cmsg');
+    var cm=document.getElementById('bl-combo-msg');
     if(cm)cm.textContent=BZ.combo>=5?'🔥 COMBO x'+BZ.combo+'!':BZ.combo>=3?'⚡ x'+BZ.combo+'!':'';
+    if(typeof floatPts==='function')floatPts('+'+pts,'#FFD740');
   } else {
     btn.classList.add('blitz-wrong');
     ob.querySelectorAll('.blitz-opt').forEach(function(b){
@@ -5700,7 +5701,7 @@ function bzPick(v,c,btn,ob){
     });
     BZ.combo=1;
     document.getElementById('bl-combo').textContent='1';
-    var cm2=document.getElementById('bl-cmsg');if(cm2)cm2.textContent='';
+    var cm2=document.getElementById('bl-combo-msg');if(cm2)cm2.textContent='';
   }
   if(BZ.qi>=BZ.total)bzEnd();
   else setTimeout(bzQ,520);
@@ -5716,8 +5717,8 @@ function bzEnd(){
   var msg=BZ.score>=300?'🌟 LEGENDARY!':BZ.score>=200?'💥 AMAZING!':BZ.score>=100?'👍 Great!':'📚 Keep going!';
   var r=document.getElementById('bl-result');
   if(r){
-    document.getElementById('bl-rtitle').textContent='⚡ '+BZ.score+' pts';
-    document.getElementById('bl-rsub').textContent=msg+' +'+reward+' coins!';
+    document.getElementById('bl-result-title').textContent='⚡ '+BZ.score+' pts';
+    document.getElementById('bl-result-sub').textContent=msg+' +'+reward+' coins!';
     r.style.display='flex';
   }
 }
@@ -5727,6 +5728,7 @@ function exitBlitz(){
   clearInterval(BZ.timer);
   var el=document.getElementById('s-boss-blitz');if(el)el.style.display='none';
   goTo('s-minigames');
+}
 }
 </script>
 

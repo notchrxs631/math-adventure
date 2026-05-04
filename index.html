@@ -5435,47 +5435,6 @@ function openTeacher(){
 
   goTo('s-teacher');
 }
-
-function exportReport(){
-  var name = ACTIVE_USER ? ACTIVE_USER.name : 'Student';
-  var email = ACTIVE_USER && ACTIVE_USER.email ? ACTIVE_USER.email : '';
-  var lines = [
-    '=== MATH ADVENTURE — LEARNING REPORT ===',
-    'Generated: '+new Date().toLocaleString(),
-    'Student: '+name+(email?' ('+email+')':''),
-    'Google Account: '+(ACTIVE_USER&&ACTIVE_USER.isGoogle?'Yes':'No — local profile'),
-    '',
-    'PERFORMANCE SUMMARY:',
-    'Total Rounds Played: '+getStat('rounds'),
-    'Best Score: '+getStat('best'),
-    'Best Streak: '+getBestStreak(),
-    'Current Level: '+getLevel(),
-    'Daily Streak: '+getDailyStreak()+' days',
-    '',
-    'TOPIC MASTERY BY CA STANDARD:',
-  ];
-  var allTopics = [];
-  Object.keys(TIERS).forEach(function(tk){
-    TIERS[tk].topics.forEach(function(t){
-      var data = JSON.parse(localStorage.getItem(userKey('pa_'+t.id))||'{"c":0,"t":0}');
-      if(data.t > 0){
-        var pct = Math.round(data.c/data.t*100);
-        var status = pct >= (t.passScore||70) ? 'PASSED' : 'NEEDS WORK';
-        lines.push(t.name+' ('+t.std+', '+t.grade+'): '+pct+'% — '+status+' ('+data.c+'/'+data.t+' correct, '+formatTime(getTopicTime(t.id))+')');
-      }
-    });
-  });
-  lines.push('');
-  lines.push('CURRICULUM ALIGNMENT:');
-  Object.keys(TIERS).forEach(function(tk){
-    var tier = TIERS[tk];
-    var prog = getTierProgress(tk);
-    lines.push(tier.name+' ('+tier.grade+'): '+prog+'% complete — CA '+tier.caStandard);
-  });
-  var report = lines.join('\n');
-  if(navigator.clipboard){ navigator.clipboard.writeText(report).then(function(){ alert('✅ Report copied to clipboard!\nPaste into an email to your teacher.'); }); }
-  else { alert(report); }
-}
 // ══ SURVIVAL MODE ══════════════════════════════════════
 var SV={lives:3,score:0,wave:1,mobs:[],spawnT:null,moveT:null,running:false,kills:0};
 
@@ -6237,7 +6196,8 @@ function setRobotBubble(text,isHint){
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">📚 Topic Mastery</div><div id="t-topics" style="font-size:13px;color:#888;">Play some rounds first!</div></div>
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">⚠️ Struggles</div><div id="t-struggles" style="font-size:13px;color:#888;">No data yet.</div></div>
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);"><div style="font-family:'Fredoka One',cursive;font-size:.9rem;color:#1A237E;margin-bottom:.5rem;">🏆 Achievements</div><div id="t-achievements" style="font-size:13px;color:#888;">None yet.</div></div>
-  <button onclick="exportReport()" <button onclick="changeTeacherPIN()" style="width:100%;padding:13px;background:linear-gradient(135deg,#FF6B35,#E53935);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #7f0000;cursor:pointer;margin-top:.5rem;">🔑 Change PIN</button>style="width:100%;padding:13px;background:linear-gradient(135deg,#1565C0,#0D47A1);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #003082;cursor:pointer;">📋 Copy Report</button>
+  <button onclick="changeTeacherPIN()" style="width:100%;padding:13px;background:linear-gradient(135deg,#FF6B35,#E53935);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #7f0000;cursor:pointer;margin-top:.5rem;">🔑 Change PIN</button>
+  <button onclick="exportReport()" style="width:100%;padding:13px;background:linear-gradient(135deg,#1565C0,#0D47A1);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.9rem;color:#fff;box-shadow:0 5px 0 #003082;cursor:pointer;">📋 Copy Report</button>
 </div>
 <div id="s-boss-gauntlet" class="boss-overlay" style="background:linear-gradient(180deg,#1a0000,#4a0000,#7f0000);">
   <button onclick="exitBossGauntlet()" style="position:absolute;top:12px;right:12px;z-index:20;padding:6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:50px;background:rgba(0,0,0,.4);font-family:'Fredoka One',cursive;font-size:.75rem;color:rgba(255,255,255,.7);cursor:pointer;">Exit</button>

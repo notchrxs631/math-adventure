@@ -1119,51 +1119,6 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
   <div class="firefly" style="bottom:39%;right:70px;animation-delay:1.4s;animation-duration:2.2s;"></div>
   <div class="firefly" style="bottom:41%;right:130px;animation-delay:2s;animation-duration:3.5s;"></div>
 </div>
-
-<!-- ────────────────────────────────────────────────────────── -->
-<!--  SPLASH SCREEN                                            -->
-<!-- ────────────────────────────────────────────────────────── -->
-<div id="s-splash" class="screen" style="background:linear-gradient(180deg,#0a0218,#1a0a3a);justify-content:center;align-items:center;padding:1.5rem;z-index:9999;">  <!-- First time visitor landing -->
-  <div id="splash-landing" style="display:none;width:100%;max-width:480px;text-align:center;">
-    <div style="font-size:3.5rem;margin-bottom:.5rem;">🤖</div>
-    <div style="font-family:'Fredoka One',cursive;font-size:2rem;background:linear-gradient(135deg,#00D4FF,#BF5FFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.25rem;">Math Adventure</div>
-    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:1.5rem;">California Common Core · Grades 3–12</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;text-align:left;">
-      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:1.4rem;">🗺️</div>
-        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">5 Learning Tiers</div>
-        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Foundation to Calculus</div>
-      </div>
-      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:1.4rem;">🎮</div>
-        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">6 Minigames</div>
-        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Boss fights, blitz & more</div>
-      </div>
-      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:1.4rem;">🧠</div>
-        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">AI Math Coach</div>
-        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Hints when you're stuck</div>
-      </div>
-      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:1.4rem;">📊</div>
-        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">CA Standards</div>
-        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Aligned to your curriculum</div>
-      </div>
-    </div>
-    <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">Made by Cristopher Osorio · Capstone Project</div>
-    <button onclick="splashContinue()" style="width:100%;padding:15px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.1rem;color:#fff;cursor:pointer;background:linear-gradient(135deg,#7C3AED,#1565C0);box-shadow:0 6px 0 #003082;">🚀 Start Playing</button>
-  </div>
-
-  <!-- Returning user splash (robot animation) -->
-  <div id="splash-returning" style="display:none;text-align:center;">
-    <div class="splash-robot">
-      <!-- your existing robot SVG goes here -->
-    </div>
-    <div class="splash-title" style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;margin-top:.5rem;">Math Adventure</div>
-    <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.25rem;">Loading your progress...</div>
-  </div>
-</div>
-
 <!-- ────────────────────────────────────────────────────────── -->
 <!--  START SCREEN                                             -->
 <!-- ────────────────────────────────────────────────────────── -->
@@ -6092,17 +6047,6 @@ function showSplash(){
     setTimeout(splashContinue, 2200);
   }
 }
-
-function splashContinue(){
-  localStorage.setItem('ma_seen','1');
-  var splash = document.getElementById('s-splash');
-  if(splash) splash.style.display = 'none';
-  // Show login screen
-  var loginEl = document.getElementById('s-login');
-  if(loginEl) loginEl.style.display = 'flex';
-  if(typeof renderLoginProfiles === 'function') renderLoginProfiles();
-}
-showSplash();
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">
@@ -6218,4 +6162,4 @@ showSplash();
   </div>
 </div>
 </body>
-</html>
+</html> 

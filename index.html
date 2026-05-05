@@ -1123,50 +1123,44 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
 <!-- ────────────────────────────────────────────────────────── -->
 <!--  SPLASH SCREEN                                            -->
 <!-- ────────────────────────────────────────────────────────── -->
-<div id="s-splash" class="screen active">
-  <div class="splash-inner">
-    <div class="splash-robot">
-      <svg width="110" height="126" viewBox="0 0 150 168" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="75" cy="163" rx="36" ry="6" fill="rgba(0,0,0,.25)"/>
-        <rect x="28" y="90" width="88" height="66" rx="24" fill="#DCEEFF" stroke="#90CAF9" stroke-width="2.5"/>
-        <rect x="28" y="90" width="88" height="22" rx="24" fill="rgba(255,255,255,.3)"/>
-        <rect x="42" y="104" width="60" height="38" rx="12" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1.5"/>
-        <circle cx="55" cy="117" r="6" fill="#EF5350"/><circle cx="72" cy="117" r="6" fill="#FFD740"/><circle cx="89" cy="117" r="6" fill="#66BB6A"/>
-        <rect x="48" y="128" width="48" height="9" rx="4.5" fill="#90CAF9" opacity=".55"/>
-        <rect x="48" y="128" width="20" height="9" rx="4.5" fill="#42A5F5" opacity=".7"/>
-        <rect x="60" y="80" width="24" height="14" rx="7" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
-        <rect x="18" y="24" width="108" height="62" rx="28" fill="#E8F5E9" stroke="#A5D6A7" stroke-width="2.5"/>
-        <rect x="18" y="24" width="108" height="18" rx="28" fill="rgba(255,255,255,.28)"/>
-        <rect x="28" y="33" width="88" height="44" rx="18" fill="#0D47A1" stroke="#1565C0" stroke-width="2"/>
-        <rect x="28" y="33" width="88" height="14" rx="18" fill="rgba(255,255,255,.1)"/>
-        <circle cx="52" cy="55" r="12" fill="white"/><circle cx="92" cy="55" r="12" fill="white"/>
-        <circle cx="54" cy="57" r="6" fill="#1565C0"/><circle cx="94" cy="57" r="6" fill="#1565C0"/>
-        <circle cx="56" cy="55" r="2.2" fill="white"/><circle cx="96" cy="55" r="2.2" fill="white"/>
-        <path d="M 57 68 Q 72 80 87 68" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <ellipse cx="32" cy="62" rx="9" ry="6" fill="#FFCDD2" opacity=".75"/>
-        <ellipse cx="112" cy="62" rx="9" ry="6" fill="#FFCDD2" opacity=".75"/>
-        <ellipse cx="75" cy="28" rx="56" ry="15" fill="#FFD740" stroke="#FFA000" stroke-width="2.5"/>
-        <rect x="20" y="23" width="104" height="11" rx="5.5" fill="#FFD740" stroke="#FFA000" stroke-width="2"/>
-        <ellipse cx="75" cy="16" rx="44" ry="22" fill="#FFD740" stroke="#FFA000" stroke-width="2.5"/>
-        <ellipse cx="75" cy="28" rx="46" ry="9" fill="#FFE57F" opacity=".5"/>
-        <circle cx="75" cy="8" r="8" fill="#FFF9C4" stroke="#FFD740" stroke-width="2"/>
-        <circle cx="75" cy="8" r="5" fill="#FFD740"/>
-        <circle cx="75" cy="8" r="2" fill="#FFF9C4"/>
-        <circle cx="75" cy="8" r="12" fill="rgba(255,215,64,.15)"/>
-        <rect x="2" y="94" width="30" height="20" rx="10" fill="#DCEEFF" stroke="#90CAF9" stroke-width="2" transform="rotate(-22 2 94)"/>
-        <rect x="-2" y="112" width="34" height="24" rx="8" fill="#1565C0" stroke="#0D47A1" stroke-width="2" transform="rotate(-12 -2 112)"/>
-        <text x="2" y="128" font-family="Arial" font-weight="900" font-size="16" fill="white" transform="rotate(-12 2 128)">+</text>
-        <rect x="112" y="94" width="30" height="20" rx="10" fill="#DCEEFF" stroke="#90CAF9" stroke-width="2" transform="rotate(22 142 94)"/>
-        <rect x="42" y="150" width="24" height="18" rx="10" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
-        <rect x="78" y="150" width="24" height="18" rx="10" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
-        <rect x="37" y="164" width="32" height="10" rx="5" fill="#90CAF9" stroke="#64B5F6" stroke-width="1.5"/>
-        <rect x="75" y="164" width="32" height="10" rx="5" fill="#90CAF9" stroke="#64B5F6" stroke-width="1.5"/>
-      </svg>
+<div id="s-splash" class="screen" style="background:linear-gradient(180deg,#0a0218,#1a0a3a);justify-content:center;align-items:center;padding:1.5rem;z-index:9999;">  <!-- First time visitor landing -->
+  <div id="splash-landing" style="display:none;width:100%;max-width:480px;text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:.5rem;">🤖</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:2rem;background:linear-gradient(135deg,#00D4FF,#BF5FFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.25rem;">Math Adventure</div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:1.5rem;">California Common Core · Grades 3–12</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;text-align:left;">
+      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:1.4rem;">🗺️</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">5 Learning Tiers</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Foundation to Calculus</div>
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:1.4rem;">🎮</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">6 Minigames</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Boss fights, blitz & more</div>
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:1.4rem;">🧠</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">AI Math Coach</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Hints when you're stuck</div>
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:.85rem;border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:1.4rem;">📊</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;margin-top:.3rem;">CA Standards</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Aligned to your curriculum</div>
+      </div>
     </div>
-    <div class="splash-title">MATH🚩<br><span class="splash-adv">ADVENTURE</span></div>
-    <div class="splash-tagline">Your personalized math journey</div>
-    <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
-    <div class="splash-loading">Loading adventure...</div>
+    <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:1rem;">Made by Cristopher Osorio · Capstone Project</div>
+    <button onclick="splashContinue()" style="width:100%;padding:15px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.1rem;color:#fff;cursor:pointer;background:linear-gradient(135deg,#7C3AED,#1565C0);box-shadow:0 6px 0 #003082;">🚀 Start Playing</button>
+  </div>
+
+  <!-- Returning user splash (robot animation) -->
+  <div id="splash-returning" style="display:none;text-align:center;">
+    <div class="splash-robot">
+      <!-- your existing robot SVG goes here -->
+    </div>
+    <div class="splash-title" style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;margin-top:.5rem;">Math Adventure</div>
+    <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.25rem;">Loading your progress...</div>
   </div>
 </div>
 
@@ -6080,6 +6074,35 @@ function showMemoryTrick(topic){
     +'<div style="font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.7;">'+trick+'</div>'
    +'</div>';
 }
+// ══ LANDING PAGE ══════════════════════════════════════════════
+function showSplash(){
+  var seen = localStorage.getItem('ma_seen');
+  var landing = document.getElementById('splash-landing');
+  var returning = document.getElementById('splash-returning');
+  var splash = document.getElementById('s-splash');
+  if(splash) splash.style.display = 'flex';
+  if(!seen){
+    // First time visitor — show landing page
+    if(landing) landing.style.display = 'block';
+    if(returning) returning.style.display = 'none';
+  } else {
+    // Returning user — show quick robot splash
+    if(landing) landing.style.display = 'none';
+    if(returning) returning.style.display = 'block';
+    setTimeout(splashContinue, 2200);
+  }
+}
+
+function splashContinue(){
+  localStorage.setItem('ma_seen','1');
+  var splash = document.getElementById('s-splash');
+  if(splash) splash.style.display = 'none';
+  // Show login screen
+  var loginEl = document.getElementById('s-login');
+  if(loginEl) loginEl.style.display = 'flex';
+  if(typeof renderLoginProfiles === 'function') renderLoginProfiles();
+}
+showSplash();
 </script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">

@@ -6029,6 +6029,7 @@ function showMemoryTrick(topic){
     +'<div style="font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.7;">'+trick+'</div>'
    +'</div>';
 }
+</script>
 // ══ LANDING PAGE ══════════════════════════════════════════════
 function showSplash(){
   var seen = localStorage.getItem('ma_seen');
@@ -6047,8 +6048,7 @@ function showSplash(){
     setTimeout(splashContinue, 2200);
   }
 }
-<div id="s-splash" class="screen" style="background:linear-gradient(180deg,#0a0218,#1a0a3a);justify-content:center;align-items:center;">
-  <div class="splash-robot">
+
     <svg width="110" height="126" viewBox="0 0 150 168" xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="75" cy="163" rx="36" ry="6" fill="rgba(0,0,0,.25)"/>
       <rect x="28" y="90" width="88" height="66" rx="24" fill="#DCEEFF" stroke="#90CAF9" stroke-width="2.5"/>
@@ -6079,7 +6079,6 @@ function showSplash(){
   <div class="splash-title">Math Adventure</div>
   <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:rgba(255,255,255,.5);margin-top:.25rem;">Your personalized math journey</div>
 </div>
-</script>
 
 <div id="s-daily" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;width:100%;"><button class="btn-back" onclick="goTo('s-start')">← Home</button><div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:#FFD740;">⚡ Daily Challenge</div></div>
@@ -6193,5 +6192,30 @@ function showSplash(){
     </div>
   </div>
 </div>
+<div id="s-splash" class="screen" style="background:linear-gradient(180deg,#0a0218,#1a0a3a);justify-content:center;align-items:center;">
+  <div class="splash-robot">
+    <svg width="110" height="126" viewBox="0 0 150 168" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="75" cy="163" rx="36" ry="6" fill="rgba(0,0,0,.25)"/>
+      <rect x="28" y="90" width="88" height="66" rx="24" fill="#DCEEFF" stroke="#90CAF9" stroke-width="2.5"/>
+      <rect x="42" y="104" width="60" height="38" rx="12" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1.5"/>
+      <circle cx="55" cy="117" r="6" fill="#EF5350"/><circle cx="72" cy="117" r="6" fill="#FFD740"/><circle cx="89" cy="117" r="6" fill="#66BB6A"/>
+      <rect x="60" y="80" width="24" height="14" rx="7" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
+      <rect x="18" y="24" width="108" height="62" rx="28" fill="#E8F5E9" stroke="#A5D6A7" stroke-width="2.5"/>
+      <rect x="28" y="33" width="88" height="44" rx="18" fill="#0D47A1" stroke="#1565C0" stroke-width="2"/>
+      <circle cx="52" cy="55" r="12" fill="white"/><circle cx="92" cy="55" r="12" fill="white"/>
+      <circle cx="54" cy="57" r="6" fill="#1565C0"/><circle cx="94" cy="57" r="6" fill="#1565C0"/>
+      <circle cx="56" cy="55" r="2.2" fill="white"/><circle cx="96" cy="55" r="2.2" fill="white"/>
+      <path d="M 57 68 Q 72 80 87 68" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="75" cy="28" rx="56" ry="15" fill="#FFD740" stroke="#FFA000" stroke-width="2.5"/>
+      <ellipse cx="75" cy="16" rx="44" ry="22" fill="#FFD740" stroke="#FFA000" stroke-width="2.5"/>
+      <circle cx="75" cy="8" r="8" fill="#FFF9C4" stroke="#FFD740" stroke-width="2"/>
+      <circle cx="75" cy="8" r="5" fill="#FFD740"/>
+      <rect x="42" y="150" width="24" height="18" rx="10" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
+      <rect x="78" y="150" width="24" height="18" rx="10" fill="#BBDEFB" stroke="#90CAF9" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="splash-title">Math Adventure</div>
+  <div style="font-family:'Fredoka One',cursive;font-size:.85rem;color:rgba(255,255,255,.5);margin-top:.25rem;">Your personalized math journey</div>
+</div>
 </body>
-</html> 
+</html>

@@ -382,11 +382,11 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
 .mem-hud{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem;}
 .mem-moves{font-family:'Fredoka One',cursive;font-size:1rem;color:rgba(255,255,255,.8);}
 .mem-matches{font-family:'Fredoka One',cursive;font-size:1rem;color:#FFD740;}
-.mem-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.8rem;}
-.mem-card{aspect-ratio:1;border-radius:12px;cursor:pointer;position:relative;transition:transform .35s;transform-style:preserve-3d;}
+.mem-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.8rem;max-width:600px;margin-left:auto;margin-right:auto;}
+.mem-card{aspect-ratio:1;max-height:120px;
 .mem-card.flipped{transform:rotateY(180deg);}
 .mem-card.matched{transform:rotateY(180deg);pointer-events:none;}
-.mem-face,.mem-back{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;}
+.mem-face,.mem-back{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:clamp(.65rem,2vw,1rem);text-align:center;padding:4px;
 .mem-face{background:linear-gradient(135deg,#1565C0,#0D47A1);border:2px solid rgba(255,255,255,.25);font-size:1.4rem;color:rgba(255,255,255,.5);}
 .mem-back{background:rgba(255,255,255,.96);border:2px solid #ddd;transform:rotateY(180deg);font-family:'Fredoka One',cursive;font-size:.78rem;color:#1A237E;padding:4px;text-align:center;line-height:1.2;}
 .mem-card.matched .mem-back{background:#E8F5E9;border-color:#43A047;}
@@ -1542,7 +1542,7 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
 <!-- ────────────────────────────────────────────────────────── -->
 <!--  MEMORY MATCH                                             -->
 <!-- ────────────────────────────────────────────────────────── -->
-<div id="s-memory" class="screen">
+<div id="s-memory" class="screen" style="overflow-y:auto;justify-content:flex-start;padding:.75rem;">
   <div style="width:100%;display:flex;align-items:center;gap:10px;margin-bottom:.5rem;">
     <button class="btn-back" onclick="openMgExit('memory')">← Exit</button>
     <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#fff;flex:1;">🧠 Math Memory</div>

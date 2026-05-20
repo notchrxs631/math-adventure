@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
@@ -909,6 +908,15 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
     <div class="login-title">Math Adventure</div>
     <div class="login-sub">Sign in to save your progress, earn achievements,<br>and let your teacher track your growth.</div>
 
+    <!-- Role selector -->
+    <div style="display:flex;gap:10px;margin-bottom:1.2rem;width:100%;">
+      <button onclick="showStudentLogin()" id="role-student-btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#1565C0,#0D47A1);border:none;border-radius:14px;font-family:'Fredoka One',cursive;font-size:1rem;color:#fff;cursor:pointer;box-shadow:0 4px 0 #003082;">🎮 Student</button>
+      <button onclick="showTeacherLogin()" id="role-teacher-btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#2E7D32,#1B5E20);border:none;border-radius:14px;font-family:'Fredoka One',cursive;font-size:1rem;color:#fff;cursor:pointer;box-shadow:0 4px 0 #0a3000;">👨‍🏫 Teacher</button>
+    </div>
+
+    <!-- Student login section -->
+    <div id="student-login-section">
+
     <!-- Google Sign-In button (rendered by GSI library) -->
     <div id="g_id_onload"
       data-client_id="345532081384-2aj13jtcql8h6bg3r183oi8furgu5man.apps.googleusercontent.com"
@@ -950,6 +958,69 @@ body{font-family:'Nunito',sans-serif;background:#060614;display:flex;justify-con
     <button onclick="continueAsGuest()" class="guest-btn">Continue as Guest (no progress saved)</button>
     <div style="font-size:10px;color:#bbb;margin-top:.75rem;line-height:1.6;">
       🔒 Google Sign-In is safe & secure. We only access your name and email to identify you — we never store passwords.
+    </div>
+  </div><!-- end student-login-section -->
+  </div>
+</div>
+
+<!-- ══ TEACHER PORTAL ══════════════════════════════════════════ -->
+<div id="teacher-portal" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0f1e;font-family:'Nunito',sans-serif;overflow-y:auto;">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#1B5E20,#2E7D32);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,.4);">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#fff;">👨‍🏫 Teacher Portal</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;">Math Adventure — Live Class Dashboard</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button onclick="teacherChangePIN()" style="padding:8px 16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:50px;font-family:'Fredoka One',cursive;font-size:.78rem;color:#fff;cursor:pointer;">🔑 Change PIN</button>
+      <button onclick="closeTeacherPortal()" style="padding:8px 16px;background:rgba(229,57,53,.8);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.78rem;color:#fff;cursor:pointer;">🚪 Log Out</button>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div style="display:flex;gap:12px;padding:1rem 1.5rem;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;">
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;text-align:center;min-width:80px;">
+      <div id="tp-total" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#38ef7d;">0</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">STUDENTS</div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;text-align:center;min-width:80px;">
+      <div id="tp-avg-level" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#4a9eff;">—</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">AVG LEVEL</div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;text-align:center;min-width:80px;">
+      <div id="tp-avg-coins" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#FFD740;">—</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">AVG COINS</div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:.6rem 1rem;text-align:center;min-width:80px;">
+      <div id="tp-total-rounds" style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#f87171;">—</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">TOTAL ROUNDS</div>
+    </div>
+    <button onclick="loadTeacherRoster()" style="margin-left:auto;padding:8px 20px;background:linear-gradient(135deg,#38ef7d,#11998e);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.82rem;color:#fff;cursor:pointer;align-self:center;">🔄 Refresh</button>
+  </div>
+
+  <!-- Student Table -->
+  <div style="padding:1.5rem;">
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;">
+      <div style="padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.06);font-family:'Fredoka One',cursive;font-size:1rem;color:#38ef7d;">🌐 Live Student Roster</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:rgba(255,255,255,.03);">
+              <th style="padding:12px 14px;text-align:left;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">#</th>
+              <th style="padding:12px 14px;text-align:left;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">Student Name</th>
+              <th style="padding:12px 14px;text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">Level</th>
+              <th style="padding:12px 14px;text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">XP</th>
+              <th style="padding:12px 14px;text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">Coins</th>
+              <th style="padding:12px 14px;text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">Rounds</th>
+              <th style="padding:12px 14px;text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;letter-spacing:1px;">Race Wins</th>
+            </tr>
+          </thead>
+          <tbody id="tp-roster-body">
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px;">📡 Loading roster...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -4313,7 +4384,7 @@ var FIREBASE_CONFIG = {
 };
 
 var DB = null; // Firestore instance
-(function initFirebase(){
+function initFirebase(){
   try {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     DB = firebase.firestore();
@@ -4321,7 +4392,12 @@ var DB = null; // Firestore instance
   } catch(e) {
     console.warn('⚠️ Firebase init failed — running offline only', e);
   }
-})();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initFirebase);
+} else {
+  initFirebase();
+}
 
 // Keys we sync to the cloud for each player
 function getProgressSnapshot(userName) {
@@ -4721,7 +4797,104 @@ function resetAllProgress(){
   keys.forEach(function(k){localStorage.removeItem(k);});
   updateStats();updateXPBar();alert('Progress reset!');
 }
+// ══ TEACHER PORTAL ════════════════════════════════════════════
 var TEACHER_PIN = localStorage.getItem('teacher_pin') || '123456';
+
+function showStudentLogin(){
+  document.getElementById('student-login-section').style.display='block';
+  document.getElementById('role-student-btn').style.opacity='1';
+  document.getElementById('role-teacher-btn').style.opacity='.6';
+}
+function showTeacherLogin(){
+  document.getElementById('student-login-section').style.display='none';
+  document.getElementById('role-student-btn').style.opacity='.6';
+  document.getElementById('role-teacher-btn').style.opacity='1';
+  var pin=prompt('🔒 Enter Teacher PIN:');
+  if(pin===null)return showStudentLogin();
+  TEACHER_PIN=localStorage.getItem('teacher_pin')||'123456';
+  if(pin.trim()===TEACHER_PIN){
+    openTeacherPortal();
+  } else {
+    alert('❌ Wrong PIN. Access denied.');
+    showStudentLogin();
+  }
+}
+function openTeacherPortal(){
+  document.getElementById('teacher-portal').style.display='block';
+  loadTeacherRoster();
+}
+function closeTeacherPortal(){
+  document.getElementById('teacher-portal').style.display='none';
+  showStudentLogin();
+}
+function teacherChangePIN(){
+  var current=prompt('Enter your current PIN:');
+  if(current===null)return;
+  TEACHER_PIN=localStorage.getItem('teacher_pin')||'123456';
+  if(current.trim()!==TEACHER_PIN){alert('❌ Wrong current PIN.');return;}
+  var newPin=prompt('Enter your new PIN (min 4 characters):');
+  if(!newPin||newPin.trim().length<4){alert('PIN must be at least 4 characters.');return;}
+  localStorage.setItem('teacher_pin',newPin.trim());
+  TEACHER_PIN=newPin.trim();
+  alert('✅ PIN changed successfully!');
+}
+async function loadTeacherRoster(){
+  var body=document.getElementById('tp-roster-body');
+  if(!body)return;
+  body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px;">📡 Syncing with Firebase...</td></tr>';
+  if(!DB){
+    body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#f87171;font-size:13px;">⚠️ Firebase not connected. Check your config.</td></tr>';
+    return;
+  }
+  try{
+    var snap=await DB.collection('players').get();
+    if(snap.empty){
+      body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px;">No students yet — have them play a round first!</td></tr>';
+      document.getElementById('tp-total').textContent='0';
+      return;
+    }
+    var students=[];
+    snap.forEach(function(doc){students.push({id:doc.id,data:doc.data()});});
+    students.sort(function(a,b){return(b.data.xp_total||0)-(a.data.xp_total||0);});
+
+    // Update summary stats
+    var totalRounds=0,totalLevel=0,totalCoins=0;
+    students.forEach(function(s){
+      totalRounds+=(s.data.rounds||0);
+      totalLevel+=(s.data.xp_level||1);
+      totalCoins+=(s.data.coins||0);
+    });
+    document.getElementById('tp-total').textContent=students.length;
+    document.getElementById('tp-avg-level').textContent='Lv '+(totalLevel/students.length).toFixed(1);
+    document.getElementById('tp-avg-coins').textContent=Math.round(totalCoins/students.length);
+    document.getElementById('tp-total-rounds').textContent=totalRounds;
+
+    // Build rows
+    var rows='';
+    var medals=['🥇','🥈','🥉'];
+    students.forEach(function(s,i){
+      var d=s.data;
+      var name=s.id.replace(/_/g,' ');
+      name=name.charAt(0).toUpperCase()+name.slice(1);
+      var lc=(d.xp_level||1)>=10?'#FFD740':(d.xp_level||1)>=5?'#38ef7d':'#4a9eff';
+      var bg=i%2===0?'rgba(255,255,255,.02)':'transparent';
+      rows+='<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:'+bg+';transition:background .15s;" onmouseover="this.style.background=\'rgba(255,255,255,.06)\'" onmouseout="this.style.background=\''+bg+'\'">'
+        +'<td style="padding:13px 14px;color:rgba(255,255,255,.35);font-size:13px;font-weight:700;">'+(medals[i]||i+1)+'</td>'
+        +'<td style="padding:13px 14px;color:#fff;font-weight:700;font-size:14px;">'+name+'</td>'
+        +'<td style="padding:13px 14px;text-align:center;"><span style="background:rgba(255,255,255,.08);border-radius:50px;padding:4px 12px;font-family:\'Fredoka One\',cursive;font-size:13px;color:'+lc+';">Lv '+(d.xp_level||1)+'</span></td>'
+        +'<td style="padding:13px 14px;text-align:center;color:rgba(255,255,255,.6);font-size:13px;">'+(d.xp_total||0)+' XP</td>'
+        +'<td style="padding:13px 14px;text-align:center;font-family:\'Fredoka One\',cursive;font-size:13px;color:#FFD740;">🪙 '+(d.coins||0)+'</td>'
+        +'<td style="padding:13px 14px;text-align:center;color:rgba(255,255,255,.6);font-size:13px;">'+(d.rounds||0)+'</td>'
+        +'<td style="padding:13px 14px;text-align:center;color:#4a9eff;font-size:13px;">🏁 '+(d.race_wins||0)+'</td>'
+        +'</tr>';
+    });
+    body.innerHTML=rows;
+  }catch(e){
+    body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#f87171;font-size:13px;">⚠️ Error loading roster: '+e.message+'</td></tr>';
+  }
+}
+
+// ══ TEACHER DASHBOARD (in-game, kept for PIN access from home screen)
 
 function openTeacher(){
   var pin = prompt('Enter Teacher PIN (default: 123456):');
@@ -5199,6 +5372,7 @@ function switchUser(){
   var found = profiles.find(function(p){ return (p.name+(p.googleId||''))===last; });
   if(found){ loginAs(found); return; }
   document.getElementById('s-login').style.display = 'flex';
+  showStudentLogin(); // default to student view
 })();
 
 // ══════════════════════════════════════════════════════════════
@@ -5733,6 +5907,48 @@ function openTeacher(){
   }).join('') : 'None yet';
 
   goTo('s-teacher');
+  var nameEl=document.getElementById('t-current-name');
+  if(nameEl)nameEl.textContent=ACTIVE_USER?ACTIVE_USER.avatar+' '+ACTIVE_USER.name:'Guest';
+  loadClassRoster();
+}
+
+async function loadClassRoster(){
+  var body=document.getElementById('t-roster-body');
+  if(!body)return;
+  body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px;">📡 Loading students...</td></tr>';
+  if(!DB){
+    body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#ff6b6b;font-size:12px;">⚠️ Firebase not connected</td></tr>';
+    return;
+  }
+  try{
+    var snap=await DB.collection('players').get();
+    if(snap.empty){
+      body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px;">No students yet — have them play first!</td></tr>';
+      return;
+    }
+    var students=[];
+    snap.forEach(function(doc){students.push({id:doc.id,data:doc.data()});});
+    students.sort(function(a,b){return(b.data.xp_total||0)-(a.data.xp_total||0);});
+    var rows='';
+    students.forEach(function(s,i){
+      var d=s.data;
+      var name=s.id.replace(/_/g,' ');
+      name=name.charAt(0).toUpperCase()+name.slice(1);
+      var lc=(d.xp_level||1)>=10?'#FFD740':(d.xp_level||1)>=5?'#38ef7d':'#4a9eff';
+      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      rows+='<tr style="border-bottom:1px solid rgba(255,255,255,.05);">'
+        +'<td style="padding:10px 6px;color:#fff;font-weight:700;font-size:12px;">'+medal+' '+name+'</td>'
+        +'<td style="padding:10px 6px;text-align:center;color:'+lc+';font-family:Fredoka One,cursive;font-size:13px;">Lv '+(d.xp_level||1)+'</td>'
+        +'<td style="padding:10px 6px;text-align:center;color:rgba(255,255,255,.6);font-size:12px;">'+(d.xp_total||0)+' XP</td>'
+        +'<td style="padding:10px 6px;text-align:center;color:#FFD740;font-size:12px;">🪙 '+(d.coins||0)+'</td>'
+        +'<td style="padding:10px 6px;text-align:center;color:rgba(255,255,255,.6);font-size:12px;">'+(d.rounds||0)+'</td>'
+        +'<td style="padding:10px 6px;text-align:center;color:#4a9eff;font-size:12px;">🏁 '+(d.race_wins||0)+'</td>'
+        +'</tr>';
+    });
+    body.innerHTML=rows;
+  }catch(e){
+    body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#ff6b6b;font-size:12px;">⚠️ Error: '+e.message+'</td></tr>';
+  }
 }
 // ══ SURVIVAL MODE ══════════════════════════════════════
 var SV={lives:3,score:0,wave:1,mobs:[],spawnT:null,moveT:null,running:false,kills:0};
@@ -6420,8 +6636,37 @@ function showMemoryTrick(topic){
   </div>
 </div>
 
-<div id="s-teacher" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;width:100%;"><button class="btn-back" onclick="goTo('s-start')">← Home</button><div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#fff;">👨‍🏫 Teacher Dashboard</div></div>
+<div id="s-teacher" class="screen" style="justify-content:flex-start;overflow-y:auto;padding:1rem;background:linear-gradient(180deg,#0a0a1a,#0d1b2a);">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;width:100%;">
+    <button class="btn-back" onclick="goTo('s-start')">← Home</button>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#fff;flex:1;">👨‍🏫 Teacher Dashboard</div>
+    <button onclick="loadClassRoster()" style="padding:6px 14px;background:linear-gradient(135deg,#38ef7d,#11998e);border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:.72rem;color:#fff;cursor:pointer;">🔄 Refresh</button>
+  </div>
+
+  <!-- CLASS ROSTER (Firebase) -->
+  <div style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(56,239,125,.2);border-radius:20px;padding:1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.3);">
+    <div style="font-family:'Fredoka One',cursive;font-size:.95rem;color:#38ef7d;margin-bottom:.75rem;">🌐 Live Class Roster</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-weight:800;text-transform:uppercase;font-size:10px;letter-spacing:1px;">
+            <th style="padding:8px 6px;text-align:left;">Student</th>
+            <th style="padding:8px 6px;text-align:center;">Level</th>
+            <th style="padding:8px 6px;text-align:center;">XP</th>
+            <th style="padding:8px 6px;text-align:center;">Coins</th>
+            <th style="padding:8px 6px;text-align:center;">Rounds</th>
+            <th style="padding:8px 6px;text-align:center;">Race Wins</th>
+          </tr>
+        </thead>
+        <tbody id="t-roster-body">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px;">Loading roster...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CURRENT STUDENT LOCAL STATS -->
+  <div style="font-family:'Fredoka One',cursive;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:.4rem;padding-left:.2rem;">📱 Current Device — <span id="t-current-name" style="color:#FFD740;">—</span></div>
   <div style="width:100%;background:rgba(255,255,255,.96);border-radius:20px;padding:1.1rem;margin-bottom:.75rem;box-shadow:0 6px 24px rgba(0,0,0,.2);">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
       <div style="background:#F8F9FF;border-radius:12px;padding:10px;text-align:center;"><div id="t-rounds" style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#1565C0;">0</div><div style="font-size:10px;color:#888;">ROUNDS</div></div>
